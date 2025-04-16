@@ -597,5 +597,3 @@ describe('data insertion', () => {
     });
   });
 });
-
-
