@@ -1,10 +1,11 @@
+process.env.NODE_ENV = 'test';
 const endpointsJson = require("../endpoints.json");
 const db = require("../db/connection");
 const app = require("../app/app");
 const request = require("supertest");
 const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data/index");
-const { toString } = require("../db/data/test-data/articles");
+require("jest-sorted");
 
 
 beforeEach(() => {
@@ -86,6 +87,59 @@ describe("GET /api/articles/:article_id", () => {
   });
 });
 
+describe("GET /api/articles", () => {
+  test("200: Returns an array of article objects", () => {
+    return request(app)
+    .get("/api/articles")
+    .expect(200)
+    .then(({body: {articles}}) => {
+      console.log(articles)
+      expect(Array.isArray(articles)).toBe(true);
+      expect(articles.length).toBe(13);
+      articles.forEach((article) => {
+        expect(typeof article).toBe("object");
+      });
+    });
+  });
+  test("200: Returns an array of article objects that are sorted in descending order by date", () => {
+    return request(app)
+    .get("/api/articles")
+    .expect(200)
+    .then(({body: {articles}}) => {
+      expect(articles).toBeSortedBy("created_at", {descending: true});
+    });
+  });
+  test("200: Each article object returned should have the article_id, title, topic, author, created_at, votes, article_img_url and comment_count properties", () => {
+    return request(app)
+    .get("/api/articles")
+    .expect(200)
+    .then(({body: {articles}}) => {
+      expect(articles.length).toBe(13);
+      articles.forEach((article) => {
+        expect(article).toMatchObject({
+          "article_id": expect.any(Number),
+          "title": expect.any(String),
+          "topic": expect.any(String),
+          "author": expect.any(String),
+          "created_at": expect.any(String),
+          "votes": expect.any(Number),
+          "article_img_url": expect.any(String),
+          "comment_count": expect.any(String)
+        });
+      });
+    });
+  });
+  test("200: The property comment_count should be accurately counted", () => {
+    return request(app)
+    .get("/api/articles")
+    .expect(200)
+    .then(({body: {articles}}) => {
+      expect(articles[0].comment_count).toBe("2")
+    });
+  });
+});
+
+
 describe("Error handling for GET /api/articles/:article_id", () => {
   test("400: Returns 400 when article_id is not a number", () => {
     return request(app)
@@ -123,4 +177,3 @@ describe("Error handling for general errors", () => {
       });
  });
 });
-
