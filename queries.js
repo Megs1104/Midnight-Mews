@@ -21,7 +21,7 @@ db.query("SELECT * FROM comments WHERE votes < 0")
 /* db.query("SELECT * FROM articles WHERE author = 'grumpy19'")
 .then((result) => console.log(result.rows))
 .catch((err) => console.log(err)); */
-
+/* 
 db.query("SELECT * FROM comments WHERE votes > 10")
 .then((result) => console.log(result.rows))
-.catch((err) => console.log(err));
+.catch((err) => console.log(err)); */
