@@ -25,12 +25,15 @@
   "devDependencies": {
     "husky": "^8.0.2",
     "jest": "^27.5.1",
-    "jest-extended": "^2.0.0"
+    "jest-extended": "^2.0.0",
+    "sorted": "^0.1.1"
   },
   "dependencies": {
-    "dotenv": "^16.4.7",
-    "pg": "^8.13.3",
-    "pg-format": "^1.0.4"
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "pg": "^8.15.6",
+    "pg-format": "^1.0.4",
+    "supertest": "^7.1.0"
   },
   "jest": {
     "setupFilesAfterEnv": [

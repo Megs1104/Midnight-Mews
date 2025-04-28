@@ -28,7 +28,6 @@ exports.createReferenceObject = (articlesData) => {
   }
   const result = {};
   articlesData.forEach((article) => {
-    console.log(article)
     result[article.title] = article.article_id
   });
   return result;
