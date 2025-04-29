@@ -299,6 +299,7 @@ describe("GET /api/users", () => {
       expect(Array.isArray(users)).toBe(true);
       expect(users.length).toBe(4);
       users.forEach((user) => {
+        console.log(user)
         expect(user).toMatchObject({
           "username": expect.any(String),
           "name": expect.any(String),
