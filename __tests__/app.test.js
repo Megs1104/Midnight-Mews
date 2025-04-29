@@ -160,7 +160,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       comments.forEach((comment) => {
         expect(comment).toMatchObject({
           "comment_id": expect.any(Number),
-          "article_id": expect.any(Number),
+          "article_id": 1,
           "body": expect.any(String),
           "votes": expect.any(Number),
           "author": expect.any(String),
@@ -189,7 +189,6 @@ describe("POST /api/articles/:article_id/comments", () => {
     .send(commentToAdd)
     .expect(201)
     .then(({body: {newComment}}) => {
-      console.log(newComment)
       expect(newComment).toMatchObject({
         "username": expect.any(String), 
         "body": expect.any(String)
@@ -198,7 +197,104 @@ describe("POST /api/articles/:article_id/comments", () => {
   })
 })
 
-describe("Error handling ofr POST /api/articles/:article_id/comments", () => {
+describe("PATCH /api/articles/:article_id", () => {
+  test("200: Returns an object containing the updated article", () => {
+    const votesToUpdate = { inc_votes: 1};
+    return request(app)
+    .patch("/api/articles/1")
+    .send(votesToUpdate)
+    .expect(200)
+    .then(({body: {updatedArticle}}) => {
+      expect(typeof updatedArticle).toBe("object");
+    })
+  })
+  test("200: Returns the article with an updated votes property when it is increased", () => {
+    const votesToUpdate = { inc_votes: 1};
+    return request(app)
+    .patch("/api/articles/1")
+    .send(votesToUpdate)
+    .expect(200)
+    .then(({body: {updatedArticle}}) => {
+      expect(updatedArticle.votes).toBe(101);
+    })
+  })
+  test("200: Returns the article with an updated votes property when it is decreased", () => {
+    const votesToUpdate = { inc_votes: -1};
+    return request(app)
+    .patch("/api/articles/1")
+    .send(votesToUpdate)
+    .expect(200)
+    .then(({body: {updatedArticle}}) => {
+      expect(updatedArticle.votes).toBe(99);
+    })
+  })
+  test("200: The updates article should have the properties author, title, article_id, body, topic, created_at, votes and article_img_url properties", () => {
+    const votesToUpdate = { inc_votes: 1};
+    return request(app)
+    .patch("/api/articles/1")
+    .send(votesToUpdate)
+    .expect(200)
+    .then(({body: {updatedArticle}}) => {
+      expect(updatedArticle).toMatchObject({
+        "article_id": 1,
+        "title": "Living in the shadow of a great man",
+        "topic": "mitch",
+        "author": "butter_bridge",
+        "body": "I find this existence challenging",
+        "created_at": "2020-07-09T20:11:00.000Z",
+        "votes": 101,
+        "article_img_url":
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      });
+    })
+  })
+})
+
+
+describe("Error handling for PATCH /api/articles/:article_id", () => {
+  test("400: Responds 400 when article_id is not a number", () => {
+    const votesToUpdate = { inc_votes: 1};
+    return request(app)
+    .patch("/api/articles/notANumber")
+    .send(votesToUpdate)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request");
+    });
+  });
+  test("404: Returns 404 when the article does not exist", () => {
+    const votesToUpdate = { inc_votes: 1};
+    return request(app)
+    .patch("/api/articles/1000/")
+    .send(votesToUpdate)
+    .expect(404)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Article Not Found");
+    });
+  });
+  test("400: Responds 400 when inc_votes is not a number", () => {
+    const votesToUpdate = { inc_votes: "not a number"};
+    return request(app)
+    .patch("/api/articles/notANumber")
+    .send(votesToUpdate)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request");
+    });
+  });
+  test("400: Responds 400 when inc_votes is 0", () => {
+    const votesToUpdate = { inc_votes: 0};
+    return request(app)
+    .patch("/api/articles/1")
+    .send(votesToUpdate)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Cannot Update Votes By 0");
+    });
+  });
+});
+
+describe("Error handling for POST /api/articles/:article_id/comments", () => {
   test("400: Returns 404 when the user does not exist", () => {
     const commentToAdd = {username: "not_a_user", body: "Good article!"};
     return request(app)
@@ -208,7 +304,7 @@ describe("Error handling ofr POST /api/articles/:article_id/comments", () => {
     .then(({body: {msg}}) => {
       expect(msg).toBe("User Does Not Exist");
     });
-  })
+  });
   test("404: Returns 404 when the article does not exist", () => {
     const commentToAdd = {username: "butter_bridge", body: "Good article!"};
     return request(app)
