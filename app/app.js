@@ -1,5 +1,11 @@
-const { getApi, getTopics, getArticlesById, getArticles, getCommentsByArticle, postCommentByArticle, 
-patchArticleVotes
+const { getApi, getTopics, 
+    getArticlesById, 
+    getArticles, 
+    getCommentsByArticle, 
+    postCommentByArticle, 
+    patchArticleVotes, 
+    deleteComment,
+    getComments
  } = require("./controller");
 const express = require("express");
 const app = express();
@@ -18,6 +24,10 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticle);
 app.post("/api/articles/:article_id/comments", postCommentByArticle);
 
 app.patch("/api/articles/:article_id", patchArticleVotes);
+
+app.delete("/api/comments/:comment_id", deleteComment);
+
+app.get("/api/comments", getComments);
 
 app.use((err, req, res, next) => {
     if (err.status && err.msg){
