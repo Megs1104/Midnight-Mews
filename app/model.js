@@ -140,14 +140,19 @@ exports.removeComment = (commentId) => {
   });
 }
 
-exports.selectComments = (req, res, next) => {
+exports.selectComments = () => {
   return db
   .query(
     `SELECT * FROM comments`)
     .then(({ rows }) => {
       return rows;
     })
-    .catch((err) => {
-      next(err);
-    });
 };
+
+exports.selectUsers = (req, res, next) => {
+  return db
+  .query("SELECT username, name, avatar_url FROM users")
+  .then(({ rows }) => {
+    return rows;
+  });
+}
