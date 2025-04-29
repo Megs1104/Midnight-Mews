@@ -93,7 +93,6 @@ describe("GET /api/articles", () => {
     .get("/api/articles")
     .expect(200)
     .then(({body: {articles}}) => {
-      console.log(articles)
       expect(Array.isArray(articles)).toBe(true);
       expect(articles.length).toBe(13);
       articles.forEach((article) => {
@@ -139,6 +138,38 @@ describe("GET /api/articles", () => {
   });
 });
 
+describe("GET /api/articles/:article_id/comments", () => {
+  test("200: Returns with an array of all comments for a specified article", () => {
+    return request(app)
+    .get("/api/articles/1/comments")
+    .expect(200)
+    .then(({body: {comments}}) => {
+      expect(Array.isArray(comments)).toBe(true);
+      expect(comments.length).toBe(11);
+      comments.forEach((comment) => {
+        expect(typeof comment).toBe("object");
+    });
+  });
+});
+  test("200: Each comment should have a comment_id, article_id, body, votes, author and created_at property", () => {
+    return request(app)
+    .get("/api/articles/1/comments")
+    .expect(200)
+    .then(({body: {comments}}) => {
+      expect(comments.length).toBe(11);
+      comments.forEach((comment) => {
+        expect(comment).toMatchObject({
+          "comment_id": expect.any(Number),
+          "article_id": expect.any(Number),
+          "body": expect.any(String),
+          "votes": expect.any(Number),
+          "author": expect.any(String),
+          "created_at": expect.any(String),
+        });
+      });
+    });
+  })
+})
 
 describe("Error handling for GET /api/articles/:article_id", () => {
   test("400: Returns 400 when article_id is not a number", () => {
@@ -154,7 +185,7 @@ describe("Error handling for GET /api/articles/:article_id", () => {
     .get("/api/articles/15")
     .expect(404)
     .then(({body: {msg}}) => {
-      expect(msg).toBe("Not Found");
+      expect(msg).toBe("Article Not Found");
     });
   });
   test("404: Returns 404 when article_id is invalid due to being out of scope", () => {
@@ -162,7 +193,34 @@ describe("Error handling for GET /api/articles/:article_id", () => {
     .get("/api/articles/1000")
     .expect(404)
     .then(({body: {msg}}) => {
-      expect(msg).toBe("Not Found");
+      expect(msg).toBe("Article Not Found");
+    });
+  });
+})
+
+describe("Error handling for GET /api/articles/:article_id/comments", () => {
+  test("400: Returns 400 when article_id is not a number", () => {
+    return request(app)
+    .get("/api/articles/notANumber/comments")
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request");
+    });
+  });
+  test("404: Returns 404 when article_id is valid but has no comments", () => {
+    return request(app)
+    .get("/api/articles/4/comments")
+    .expect(404)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("No Comments Found");
+    });
+  });
+  test("404: Returns 404 when article_id is invalid due to being out of scope", () => {
+    return request(app)
+    .get("/api/articles/1000/comments")
+    .expect(404)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Article Not Found");
     });
   });
 })
