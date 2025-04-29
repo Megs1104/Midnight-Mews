@@ -277,6 +277,43 @@ describe("DELETE /api/comments/:comment_id", () => {
    
 })
 
+describe("GET /api/users", () => {
+  test("200: Returns an array of all user objects", () => {
+    return request(app)
+    .get("/api/users")
+    .expect(200)
+    .then(({body: {users}}) => {
+      expect(Array.isArray(users)).toBe(true);
+      expect(users.length).toBe(4);
+      users.forEach((user) => {
+        expect(typeof user).toBe("object");
+      });
+    });
+    
+  });
+  test("200: Returns an array of all user objects which contain a username, name and avatar_url property", () => {
+    return request(app)
+    .get("/api/users")
+    .expect(200)
+    .then(({body: {users}}) => {
+      expect(Array.isArray(users)).toBe(true);
+      expect(users.length).toBe(4);
+      users.forEach((user) => {
+        expect(user).toMatchObject({
+          "username": expect.any(String),
+          "name": expect.any(String),
+          "avatar_url": expect.any(String)
+        });
+      });
+    });
+    
+  });
+ /* 
+Consider what errors could occur with this endpoint, and make sure to test for them.
+
+Remember to add a description of this endpoint to your /api endpoint. */
+
+})
 
 describe("Error handling", () => {
   describe("Error handling for general errors", () => {
@@ -475,6 +512,6 @@ describe("Error handling", () => {
         expect(msg).toBe("Invalid Input");
       });
     });
-  })
+  });
 
 });

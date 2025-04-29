@@ -5,7 +5,8 @@ const { selectTopics,
     insertCommentsByArticle, 
     updateArticleVotes, 
     removeComment, 
-    selectComments } = require("./model"); 
+    selectComments, 
+    selectUsers } = require("./model"); 
 const endpointsJson = require("../endpoints.json");
 
 exports.getApi = (req, res) => {
@@ -116,4 +117,15 @@ exports.getComments = (req, res, next) => {
     .catch((err) => {
         next(err);
     });
+}
+
+exports.getUsers = (req, res, next) => {
+    return selectUsers()
+    .then((users) => {
+        res.status(200).send({ users })
+    })
+    .catch((err) => {
+        next(err);
+    })
+
 }
