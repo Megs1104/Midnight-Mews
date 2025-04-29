@@ -58,5 +58,13 @@
       ]
     }
 
+  }, 
+  "POST /api/articles/:article_id/comments": {
+    "description": "serves the comment posted",
+    "exampleResponse": { 
+      "username": "butter_bridge", 
+      "body": "Good article!" 
+    }
   }
 }
+

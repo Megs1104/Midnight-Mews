@@ -171,6 +171,86 @@ describe("GET /api/articles/:article_id/comments", () => {
   })
 })
 
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: Returns the newly added comment as an object", () => {
+    const commentToAdd = {username: "butter_bridge", body: "Good article!"};
+    return request(app)
+    .post("/api/articles/1/comments")
+    .send(commentToAdd)
+    .expect(201)
+    .then(({body: {newComment}}) => {
+      expect(typeof newComment).toBe("object");
+    })
+  })
+  test("201: Returns the username and body properties of the added comment", () => {
+    const commentToAdd = {username: "butter_bridge", body: "Good article!"};
+    return request(app)
+    .post("/api/articles/1/comments")
+    .send(commentToAdd)
+    .expect(201)
+    .then(({body: {newComment}}) => {
+      console.log(newComment)
+      expect(newComment).toMatchObject({
+        "username": expect.any(String), 
+        "body": expect.any(String)
+      })
+    })
+  })
+})
+
+describe("Error handling ofr POST /api/articles/:article_id/comments", () => {
+  test("400: Returns 404 when the user does not exist", () => {
+    const commentToAdd = {username: "not_a_user", body: "Good article!"};
+    return request(app)
+    .post("/api/articles/1/comments")
+    .send(commentToAdd)
+    .expect(404)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("User Does Not Exist");
+    });
+  })
+  test("404: Returns 404 when the article does not exist", () => {
+    const commentToAdd = {username: "butter_bridge", body: "Good article!"};
+    return request(app)
+    .post("/api/articles/1000/comments")
+    .send(commentToAdd)
+    .expect(404)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Article Not Found");
+    });
+  })
+  test("400: Returns 400 when article_id is not a number", () => {
+    const commentToAdd = {username: "butter_bridge", body: "Good article!"};
+    return request(app)
+    .post("/api/articles/notANumber/comments")
+    .send(commentToAdd)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request");
+    });
+  })
+  test("400: Returns 400 when the passed username is not of the correct data type", () => {
+    const commentToAdd = {username: 1, body: "Good article!"};
+    return request(app)
+    .post("/api/articles/1/comments")
+    .send(commentToAdd)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request");
+    });
+  })
+  test("400: Returns 400 when the passed body is not of the correct data type", () => {
+    const commentToAdd = {username: "butter_bridge", body: 1};
+    return request(app)
+    .post("/api/articles/1/comments")
+    .send(commentToAdd)
+    .expect(400)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("Bad Request");
+    });
+  })
+})
+
 describe("Error handling for GET /api/articles/:article_id", () => {
   test("400: Returns 400 when article_id is not a number", () => {
     return request(app)

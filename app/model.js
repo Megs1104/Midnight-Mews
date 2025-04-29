@@ -13,6 +13,18 @@ const checkArticleExists = (articleId) => {
   })
 }
 
+const checkUserExists = (username) => {
+  return db
+  .query("SELECT * FROM users WHERE username = $1", [username])
+  .then(({rows}) => {
+    if(rows.length === 0){
+      return Promise.reject({status: 404, msg: "User Does Not Exist"})
+    }else{
+      return true;
+    }
+  })
+}
+
 exports.selectTopics = () => {
     return db
     .query("SELECT slug, description FROM topics")
@@ -68,6 +80,23 @@ exports.selectCommentsByArticle = (articleId) => {
     }else{
         return rows;
     }
+    });
+  });
+}
+
+exports.insertCommentsByArticle = (articleId, username, body) => {
+  if(typeof username !== "string"|| typeof body !== "string"){
+    return Promise.reject({status: 400, msg: "Bad Request"});
+  }
+  return checkArticleExists(articleId)
+  .then(() => {
+    return checkUserExists(username)
+    .then(() => {
+      return db.query(
+        `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING author AS username, body`, [articleId, username, body])
+      .then(({rows}) => {
+        return rows[0];
+      });
     });
   });
 }
