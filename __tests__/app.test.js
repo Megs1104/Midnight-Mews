@@ -250,164 +250,231 @@ describe("PATCH /api/articles/:article_id", () => {
   })
 })
 
-
-describe("Error handling for PATCH /api/articles/:article_id", () => {
-  test("400: Responds 400 when article_id is not a number", () => {
-    const votesToUpdate = { inc_votes: 1};
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: Responds with 204 after successful deletion and 404 when try to get the comment after deletion", () => {
     return request(app)
-    .patch("/api/articles/notANumber")
-    .send(votesToUpdate)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request");
-    });
-  });
-  test("404: Returns 404 when the article does not exist", () => {
-    const votesToUpdate = { inc_votes: 1};
-    return request(app)
-    .patch("/api/articles/1000/")
-    .send(votesToUpdate)
-    .expect(404)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Article Not Found");
-    });
-  });
-  test("400: Responds 400 when inc_votes is not a number", () => {
-    const votesToUpdate = { inc_votes: "not a number"};
-    return request(app)
-    .patch("/api/articles/notANumber")
-    .send(votesToUpdate)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request");
-    });
-  });
-  test("400: Responds 400 when inc_votes is 0", () => {
-    const votesToUpdate = { inc_votes: 0};
-    return request(app)
-    .patch("/api/articles/1")
-    .send(votesToUpdate)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Cannot Update Votes By 0");
-    });
-  });
-});
-
-describe("Error handling for POST /api/articles/:article_id/comments", () => {
-  test("400: Returns 404 when the user does not exist", () => {
-    const commentToAdd = {username: "not_a_user", body: "Good article!"};
-    return request(app)
-    .post("/api/articles/1/comments")
-    .send(commentToAdd)
-    .expect(404)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("User Does Not Exist");
-    });
-  });
-  test("404: Returns 404 when the article does not exist", () => {
-    const commentToAdd = {username: "butter_bridge", body: "Good article!"};
-    return request(app)
-    .post("/api/articles/1000/comments")
-    .send(commentToAdd)
-    .expect(404)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Article Not Found");
-    });
-  })
-  test("400: Returns 400 when article_id is not a number", () => {
-    const commentToAdd = {username: "butter_bridge", body: "Good article!"};
-    return request(app)
-    .post("/api/articles/notANumber/comments")
-    .send(commentToAdd)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request");
-    });
-  })
-  test("400: Returns 400 when the passed username is not of the correct data type", () => {
-    const commentToAdd = {username: 1, body: "Good article!"};
-    return request(app)
-    .post("/api/articles/1/comments")
-    .send(commentToAdd)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request");
-    });
-  })
-  test("400: Returns 400 when the passed body is not of the correct data type", () => {
-    const commentToAdd = {username: "butter_bridge", body: 1};
-    return request(app)
-    .post("/api/articles/1/comments")
-    .send(commentToAdd)
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request");
-    });
-  })
-})
-
-describe("Error handling for GET /api/articles/:article_id", () => {
-  test("400: Returns 400 when article_id is not a number", () => {
-    return request(app)
-    .get("/api/articles/notANumber")
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request");
-    });
-  });
-  test("404: Returns 404 when article_id is valid but does not contain any data", () => {
-    return request(app)
-    .get("/api/articles/15")
-    .expect(404)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Article Not Found");
-    });
-  });
-  test("404: Returns 404 when article_id is invalid due to being out of scope", () => {
-    return request(app)
-    .get("/api/articles/1000")
-    .expect(404)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Article Not Found");
-    });
-  });
-})
-
-describe("Error handling for GET /api/articles/:article_id/comments", () => {
-  test("400: Returns 400 when article_id is not a number", () => {
-    return request(app)
-    .get("/api/articles/notANumber/comments")
-    .expect(400)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Bad Request");
-    });
-  });
-  test("404: Returns 404 when article_id is valid but has no comments", () => {
-    return request(app)
-    .get("/api/articles/4/comments")
-    .expect(404)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("No Comments Found");
-    });
-  });
-  test("404: Returns 404 when article_id is invalid due to being out of scope", () => {
-    return request(app)
-    .get("/api/articles/1000/comments")
-    .expect(404)
-    .then(({body: {msg}}) => {
-      expect(msg).toBe("Article Not Found");
-    });
-  });
-})
-
-describe("Error handling for general errors", () => {
- test("404: Returns 404 when endpoint is not found", () => {
-  return request(app)
-      .get("/api/notTopics")
+    .delete("/api/comments/1")
+    .expect(204)
+    .then(() => {
+      return request(app)
+      .get("/api/comments/1")
       .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Invalid Input")
+    });
+   });
+   test("204: Responds with 204 after successful deletion of only specified comment and 200 when all other comments can be retrieved", () => {
+    return request(app)
+    .delete("/api/comments/1")
+    .expect(204)
+    .then(() => {
+      return request(app)
+      .get("/api/comments")
+      .expect(200)
+      .then(({body: { comments}}) => {
+        expect(comments.length).toBe(17);
       });
- });
+    });
+   })
+   
+})
+
+
+describe("Error handling", () => {
+  describe("Error handling for general errors", () => {
+    test("404: Returns 404 when endpoint is not found", () => {
+      return request(app)
+          .get("/api/notTopics")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Invalid Input")
+          });
+    });
+    });
+
+  describe("Error handling for GET /api/articles/:article_id/comments", () => {
+      test("400: Returns 400 when article_id is not a number", () => {
+        return request(app)
+        .get("/api/articles/notANumber/comments")
+        .expect(400)
+        .then(({body: {msg}}) => {
+          expect(msg).toBe("Bad Request");
+        });
+      });
+      test("404: Returns 404 when article_id is valid but has no comments", () => {
+        return request(app)
+        .get("/api/articles/4/comments")
+        .expect(404)
+        .then(({body: {msg}}) => {
+          expect(msg).toBe("No Comments Found");
+        });
+      });
+      test("404: Returns 404 when article_id is invalid due to being out of scope", () => {
+        return request(app)
+        .get("/api/articles/1000/comments")
+        .expect(404)
+        .then(({body: {msg}}) => {
+          expect(msg).toBe("Article Not Found");
+        });
+      });
+    });
+
+  describe("Error handling for GET /api/articles/:article_id", () => {
+      test("400: Returns 400 when article_id is not a number", () => {
+        return request(app)
+        .get("/api/articles/notANumber")
+        .expect(400)
+        .then(({body: {msg}}) => {
+          expect(msg).toBe("Bad Request");
+        });
+      });
+      test("404: Returns 404 when article_id is valid but does not contain any data", () => {
+        return request(app)
+        .get("/api/articles/15")
+        .expect(404)
+        .then(({body: {msg}}) => {
+          expect(msg).toBe("Article Not Found");
+        });
+      });
+      test("404: Returns 404 when article_id is invalid due to being out of scope", () => {
+        return request(app)
+        .get("/api/articles/1000")
+        .expect(404)
+        .then(({body: {msg}}) => {
+          expect(msg).toBe("Article Not Found");
+        });
+      });
+    });
+
+  describe("Error handling for POST /api/articles/:article_id/comments", () => {
+      test("404: Returns 404 when the user does not exist", () => {
+        const commentToAdd = {username: "not_a_user", body: "Good article!"};
+        return request(app)
+        .post("/api/articles/1/comments")
+        .send(commentToAdd)
+        .expect(404)
+        .then(({body: {msg}}) => {
+          expect(msg).toBe("User Does Not Exist");
+        });
+      });
+      test("404: Returns 404 when the article does not exist", () => {
+        const commentToAdd = {username: "butter_bridge", body: "Good article!"};
+        return request(app)
+        .post("/api/articles/1000/comments")
+        .send(commentToAdd)
+        .expect(404)
+        .then(({body: {msg}}) => {
+          expect(msg).toBe("Article Not Found");
+        });
+      })
+      test("400: Returns 400 when article_id is not a number", () => {
+        const commentToAdd = {username: "butter_bridge", body: "Good article!"};
+        return request(app)
+        .post("/api/articles/notANumber/comments")
+        .send(commentToAdd)
+        .expect(400)
+        .then(({body: {msg}}) => {
+          expect(msg).toBe("Bad Request");
+        });
+      })
+      test("400: Returns 400 when the passed username is not of the correct data type", () => {
+        const commentToAdd = {username: 1, body: "Good article!"};
+        return request(app)
+        .post("/api/articles/1/comments")
+        .send(commentToAdd)
+        .expect(400)
+        .then(({body: {msg}}) => {
+          expect(msg).toBe("Bad Request");
+        });
+      })
+      test("400: Returns 400 when the passed body is not of the correct data type", () => {
+        const commentToAdd = {username: "butter_bridge", body: 1};
+        return request(app)
+        .post("/api/articles/1/comments")
+        .send(commentToAdd)
+        .expect(400)
+        .then(({body: {msg}}) => {
+          expect(msg).toBe("Bad Request");
+        });
+      })
+      test("400: Returns 400 when a vital property is missing from provided object", () => {
+        const commentToAdd = {username: "butter_bridge"}
+        return request(app)
+        .post("/api/articles/1/comments")
+        .send(commentToAdd)
+        .expect(400)
+        .then(({body: {msg}}) => {
+          expect(msg).toBe("Bad Request");
+        });
+      })
+    });
+
+  describe("Error handling for PATCH /api/articles/:article_id", () => {
+    test("400: Responds 400 when article_id is not a number", () => {
+      const votesToUpdate = { inc_votes: 1};
+      return request(app)
+      .patch("/api/articles/notANumber")
+      .send(votesToUpdate)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      });
+    });
+    test("404: Returns 404 when the article does not exist", () => {
+      const votesToUpdate = { inc_votes: 1};
+      return request(app)
+      .patch("/api/articles/1000/")
+      .send(votesToUpdate)
+      .expect(404)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Article Not Found");
+      });
+    });
+    test("400: Responds 400 when inc_votes is not a number", () => {
+      const votesToUpdate = { inc_votes: "not a number"};
+      return request(app)
+      .patch("/api/articles/notANumber")
+      .send(votesToUpdate)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      });
+    });
+    test("400: Responds 400 when inc_votes is 0", () => {
+      const votesToUpdate = { inc_votes: 0};
+      return request(app)
+      .patch("/api/articles/1")
+      .send(votesToUpdate)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Cannot Update Votes By 0");
+      });
+    });
+  });
+
+  describe("Error handling for DELETE /api/comments", () => {
+    test("404: Returns 404 when comment_id is valid but does not contain any data", () => {
+      return request(app)
+      .delete("/api/comments/30")
+      .expect(404)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Comment Not Found");
+      });
+    });
+    test("400: Returns 400 when comment_id is not a number", () => {
+      return request(app)
+      .delete("/api/comments/notANumber")
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      });
+    });
+    test("404: Returns 404 when comment_id is not provided", () => {
+      return request(app)
+      .delete("/api/comments/")
+      .expect(404)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Invalid Input");
+      });
+    });
+  })
+
 });

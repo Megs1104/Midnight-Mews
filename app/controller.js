@@ -1,4 +1,11 @@
-const { selectTopics, selectArticlesById, selectArticles, selectCommentsByArticle, insertCommentsByArticle, updateArticleVotes } = require("./model"); 
+const { selectTopics, 
+    selectArticlesById, 
+    selectArticles, 
+    selectCommentsByArticle, 
+    insertCommentsByArticle, 
+    updateArticleVotes, 
+    removeComment, 
+    selectComments } = require("./model"); 
 const endpointsJson = require("../endpoints.json");
 
 exports.getApi = (req, res) => {
@@ -58,17 +65,14 @@ exports.getCommentsByArticle = (req, res, next) => {
 exports.postCommentByArticle = (req, res, next) => {
     const articleId = req.params.article_id;
     const { username, body } = req.body;
-    if (isNaN(articleId) || !username || !body){
-        res.status(400).send({msg: "Bad Request"});
-    }else{
-        return insertCommentsByArticle(articleId, username, body)
+    return insertCommentsByArticle(articleId, username, body)
         .then((newComment) => {
             res.status(201).send({ newComment })
         })
         .catch((err) => {
             next(err);
         });
-    }
+    
 }
 
 exports.patchArticleVotes = (req, res, next) => {
@@ -87,4 +91,29 @@ exports.patchArticleVotes = (req, res, next) => {
         next(err);
     });
     }
+}
+
+exports.deleteComment = (req, res, next) => {
+    const commentId = req.params.comment_id;
+    if(isNaN(commentId)){
+        res.status(400).send({msg: "Bad Request"});   
+    }else{
+        return removeComment(commentId)
+        .then(() => {
+            res.status(204).end()
+        })
+        .catch((err) => {
+            next(err);
+        });
+    }
+}
+
+exports.getComments = (req, res, next) => {
+    return selectComments()
+    .then((comments) => {
+         res.status(200).send({ comments }); 
+    })
+    .catch((err) => {
+        next(err);
+    });
 }

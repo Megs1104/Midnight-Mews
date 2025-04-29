@@ -24,6 +24,19 @@ const checkUserExists = (username) => {
   })
 }
 
+const checkCommentExists = (commentId) => {
+  return db
+  .query("SELECT * FROM comments WHERE comment_id = $1", [commentId])
+  .then(({rows}) => {
+    if(rows.length === 0){
+      return Promise.reject({status: 404, msg: "Comment Not Found"})
+    }else{
+      return true;
+    }
+  })
+}
+
+
 exports.selectTopics = () => {
     return db
     .query("SELECT slug, description FROM topics")
@@ -91,7 +104,8 @@ exports.insertCommentsByArticle = (articleId, username, body) => {
   .then(() => {
     return checkUserExists(username)
     .then(() => {
-      return db.query(
+      return db
+      .query(
         `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING author AS username, body`, [articleId, username, body])
       .then(({rows}) => {
         return rows[0];
@@ -114,3 +128,26 @@ exports.updateArticleVotes = (articleId, votesToUpdate) => {
     return rows[0];
   });
 }
+
+exports.removeComment = (commentId) => {
+  return checkCommentExists(commentId)
+  .then(() => {
+    return db
+    .query(
+      `DELETE FROM comments WHERE comment_id = $1`, [commentId]);
+  }).then(({rows}) => {
+    return rows;
+  });
+}
+
+exports.selectComments = (req, res, next) => {
+  return db
+  .query(
+    `SELECT * FROM comments`)
+    .then(({ rows }) => {
+      return rows;
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
