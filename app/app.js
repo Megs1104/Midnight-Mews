@@ -1,6 +1,7 @@
-const { getApi, getTopics, getArticlesById, getArticles, getCommentsByArticle } = require("./controller");
+const { getApi, getTopics, getArticlesById, getArticles, getCommentsByArticle, postCommentByArticle } = require("./controller");
 const express = require("express");
 const app = express();
+app.use(express.json());
 
 app.get("/api", getApi);
 
@@ -11,6 +12,8 @@ app.get("/api/articles/:article_id", getArticlesById);
 app.get("/api/articles", getArticles);
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticle);
+
+app.post("/api/articles/:article_id/comments", postCommentByArticle);
 
 app.use((err, req, res, next) => {
     if (err.status && err.msg){

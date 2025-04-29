@@ -1,4 +1,4 @@
-const { selectTopics, selectArticlesById, selectArticles, selectCommentsByArticle } = require("./model"); 
+const { selectTopics, selectArticlesById, selectArticles, selectCommentsByArticle, insertCommentsByArticle } = require("./model"); 
 const endpointsJson = require("../endpoints.json");
 
 exports.getApi = (req, res) => {
@@ -52,5 +52,21 @@ exports.getCommentsByArticle = (req, res, next) => {
     .catch((err) => {
         next(err);
     });
+    }
+}
+
+exports.postCommentByArticle = (req, res, next) => {
+    const articleId = req.params.article_id;
+    const { username, body } = req.body;
+    if (isNaN(articleId) || !username || !body){
+        res.status(400).send({msg: "Bad Request"})
+    }else{
+        return insertCommentsByArticle(articleId, username, body)
+        .then((newComment) => {
+            res.status(201).send({ newComment })
+        })
+        .catch((err) => {
+            next(err);
+        })
     }
 }
