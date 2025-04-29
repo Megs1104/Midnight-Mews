@@ -1,6 +1,5 @@
 const db = require("../db/connection");
 
-
 const checkArticleExists = (articleId) => {
   return db
   .query("SELECT * FROM articles WHERE article_id = $1", [articleId])
@@ -98,5 +97,20 @@ exports.insertCommentsByArticle = (articleId, username, body) => {
         return rows[0];
       });
     });
+  });
+}
+
+exports.updateArticleVotes = (articleId, votesToUpdate) => {
+  if (typeof votesToUpdate !== "number"){
+    return Promise.reject({status: 400, msg: "Votes Must Be A Number"})
+  }
+  return checkArticleExists(articleId)
+  .then(() => {
+    return db.query(
+      `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`, [votesToUpdate, articleId]
+    )
+  })
+  .then(({rows}) => {
+    return rows[0];
   });
 }
