@@ -1,5 +1,18 @@
 const db = require("../db/connection");
 
+
+const checkArticleExists = (articleId) => {
+  return db
+  .query("SELECT * FROM articles WHERE article_id = $1", [articleId])
+  .then(({rows}) => {
+    if(rows.length === 0){
+      return Promise.reject({status: 404, msg: "Article Not Found"})
+    }else{
+      return true;
+    }
+  })
+}
+
 exports.selectTopics = () => {
     return db
     .query("SELECT slug, description FROM topics")
@@ -13,7 +26,7 @@ exports.selectArticlesById = (articleId) => {
     .query(`SELECT * FROM articles WHERE article_id = $1`, [articleId])
     .then(({rows}) => {
         if (rows.length === 0){
-            return Promise.reject({status: 404, msg: "Not Found"});
+            return Promise.reject({status: 404, msg: "Article Not Found"});
         }else{
             return rows[0];
         }
@@ -42,4 +55,19 @@ exports.selectArticles = () => {
     .then(({rows}) => {
         return rows;
     });
+}
+
+exports.selectCommentsByArticle = (articleId) => {
+  return checkArticleExists(articleId)
+  .then(() => {
+    return db
+    .query(`SELECT * FROM comments WHERE article_id = $1`, [articleId])
+    .then(({rows}) => {
+      if (rows.length === 0){
+        return Promise.reject({status: 404, msg: "No Comments Found"});
+    }else{
+        return rows;
+    }
+    });
+  });
 }

@@ -1,4 +1,4 @@
-const { selectTopics, selectArticlesById, selectArticles } = require("./model"); 
+const { selectTopics, selectArticlesById, selectArticles, selectCommentsByArticle } = require("./model"); 
 const endpointsJson = require("../endpoints.json");
 
 exports.getApi = (req, res) => {
@@ -38,4 +38,19 @@ exports.getArticles = (req, res, next) => {
     .catch((err) => {
         next(err);
     })
+}
+
+exports.getCommentsByArticle = (req, res, next) => {
+    const articleId = req.params.article_id
+    if (isNaN(articleId)){
+        res.status(400).send({msg: "Bad Request"});
+    }else{
+        return selectCommentsByArticle(articleId)
+    .then((comments) => {
+        res.status(200).send({comments:comments});
+    })
+    .catch((err) => {
+        next(err);
+    });
+    }
 }
