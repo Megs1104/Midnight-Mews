@@ -391,6 +391,25 @@ test('200: Returns articles that have the specified topic value', () => {
 });
 })
 
+describe("GET /api/articles/:article_id (comment_count", () => {
+  test('200: Returns single article which has a comment_count property', () => {
+    return request(app)
+    .get("/api/articles/1")
+    .expect(200)
+    .then(({ body: {article} }) => {
+      expect(article.comment_count).toBe("11")
+    })
+  });
+  test('200: Returns single article which has a comment_count property of 0 when given article has no comments', () => {
+    return request(app)
+    .get("/api/articles/11")
+    .expect(200)
+    .then(({ body: {article} }) => {
+      expect(article.comment_count).toBe("0")
+    })
+  });
+})
+
 describe("Error handling", () => {
   describe("Error handling for general errors", () => {
     test("404: Returns 404 when endpoint is not found", () => {

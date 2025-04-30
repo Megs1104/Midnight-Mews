@@ -58,7 +58,15 @@ exports.selectTopics = () => {
 
 exports.selectArticlesById = (articleId) => {
     return db
-    .query(`SELECT * FROM articles WHERE article_id = $1`, [articleId])
+    .query(`
+      SELECT articles.*,
+      COUNT(comments.comment_id) AS comment_count 
+      FROM articles 
+      LEFT JOIN comments 
+      ON articles.article_id = comments.article_id
+      WHERE articles.article_id = $1
+      GROUP BY articles.article_id
+      `, [articleId])
     .then(({rows}) => {
         if (rows.length === 0){
             return Promise.reject({status: 404, msg: "Article Not Found"});
@@ -73,11 +81,8 @@ exports.selectArticles = (sortCriteria = "created_at", orderCriteria = "desc", t
   const greenlistOrderCriteria = ["desc", "asc"];
 
   if (!greenlistSortCriteria.includes(sortCriteria) || !greenlistOrderCriteria.includes(orderCriteria)){
-
     return Promise.reject({status: 400, msg: "Bad Request"})
-
   }
-  
     const upperCaseOrderCriteria = orderCriteria.toUpperCase();
 
     let queryStr = `
@@ -97,7 +102,6 @@ exports.selectArticles = (sortCriteria = "created_at", orderCriteria = "desc", t
    const queryValues = [];
 
    if (topic){
-    console.log(topic)
     return checkTopicExists(topic)
     .then(() => {
       queryStr += ` WHERE articles.topic = $1`
