@@ -57,7 +57,13 @@ exports.selectArticlesById = (articleId) => {
     });
 }
 
-exports.selectArticles = () => {
+exports.selectArticles = (sortCriteria = "created_at", orderCriteria = "desc") => {
+  const greenlistSortCriteria = ["article_id", "title", "topic", "author", "created_at", "votes", "article_img_url"];
+  const greenlistOrderCriteria = ["desc", "asc"];
+  if (!greenlistSortCriteria.includes(sortCriteria) || !greenlistOrderCriteria.includes(orderCriteria)){
+    return Promise.reject({status: 400, msg: "Bad Request"})
+  }else if (greenlistSortCriteria.includes(sortCriteria) && greenlistOrderCriteria.includes(orderCriteria)){
+    const upperCaseOrderCriteria = orderCriteria.toUpperCase();
     return db
     .query(`
       SELECT 
@@ -74,11 +80,12 @@ exports.selectArticles = () => {
         ON articles.article_id = comments.article_id 
       GROUP BY 
         articles.article_id
-      ORDER BY articles.created_at DESC
+      ORDER BY ${sortCriteria} ${upperCaseOrderCriteria}
     `)
     .then(({rows}) => {
         return rows;
     });
+  }
 }
 
 exports.selectCommentsByArticle = (articleId) => {

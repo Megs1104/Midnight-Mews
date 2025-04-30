@@ -299,7 +299,6 @@ describe("GET /api/users", () => {
       expect(Array.isArray(users)).toBe(true);
       expect(users.length).toBe(4);
       users.forEach((user) => {
-        console.log(user)
         expect(user).toMatchObject({
           "username": expect.any(String),
           "name": expect.any(String),
@@ -315,6 +314,76 @@ Consider what errors could occur with this endpoint, and make sure to test for t
 Remember to add a description of this endpoint to your /api endpoint. */
 
 })
+
+describe("GET /api/articles (sorting queries)", () => {
+test("200: Returns articles sorted by article_id with default order of descending", () => {
+return request(app)
+.get("/api/articles?sort_by=article_id")
+.expect(200)
+.then(({body: {articles}}) => {
+expect(articles).toBeSortedBy("article_id", {descending: true});
+})
+})
+test("200: Returns articles sorted by title with default order of descending", () => {
+  return request(app)
+  .get("/api/articles?sort_by=title")
+  .expect(200)
+  .then(({body: {articles}}) => {
+  expect(articles).toBeSortedBy("title", {descending: true});
+  })
+})
+test("200: Returns articles sorted by topic with default order of descending", () => {
+  return request(app)
+  .get("/api/articles?sort_by=topic")
+  .expect(200)
+  .then(({body: {articles}}) => {
+  expect(articles).toBeSortedBy("topic", {descending: true});
+  })
+})
+test("200: Returns articles sorted by author with default order of descending", () => {
+  return request(app)
+  .get("/api/articles?sort_by=author")
+  .expect(200)
+  .then(({body: {articles}}) => {
+  expect(articles).toBeSortedBy("author", {descending: true});
+  })
+})
+test("200: Returns articles sorted by created_at with default order of descending", () => {
+  return request(app)
+  .get("/api/articles?sort_by=created_at")
+  .expect(200)
+  .then(({body: {articles}}) => {
+  expect(articles).toBeSortedBy("created_at", {descending: true});
+  })
+})
+test("200: Returns articles sorted by votes with default order of descending", () => {
+  return request(app)
+  .get("/api/articles?sort_by=votes")
+  .expect(200)
+  .then(({body: {articles}}) => {
+  expect(articles).toBeSortedBy("votes", {descending: true});
+  })
+})
+test("200: Returns articles sorted by article_img_url with default order of descending", () => {
+  return request(app)
+  .get("/api/articles?sort_by=article_img_url")
+  .expect(200)
+  .then(({body: {articles}}) => {
+  expect(articles).toBeSortedBy("article_img_url", {descending: true});
+  })
+})
+test("200: Returns articles sorted in ascending order", () => {
+  return request(app)
+  .get("/api/articles?sort_by=article_id&order=asc")
+  .expect(200)
+  .then(({body: {articles}}) => {
+  expect(articles).toBeSortedBy("article_id", {descending: false});
+  })
+})
+})
+
+// Remember to add a description of this endpoint to your /api endpoint.
+ 
 
 describe("Error handling", () => {
   describe("Error handling for general errors", () => {
@@ -515,4 +584,22 @@ describe("Error handling", () => {
     });
   });
 
+  describe("Error handling for GET /api/articles?sort_by= ...", () => {
+    test('400: Returns 400 when sort criteria is invalid', () => {
+      return request(app)
+      .get("/api/articles?sort_by=notValid")
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      })
+    });
+    test('400: Returns 400 when order criteria is invalid', () => {
+      return request(app)
+      .get("/api/articles?sort_by=title&order=notValid")
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      })
+    });
+  })
 });
