@@ -308,11 +308,6 @@ describe("GET /api/users", () => {
     });
     
   });
- /* 
-Consider what errors could occur with this endpoint, and make sure to test for them.
-
-Remember to add a description of this endpoint to your /api endpoint. */
-
 })
 
 describe("GET /api/articles (sorting queries)", () => {
@@ -382,8 +377,19 @@ test("200: Returns articles sorted in ascending order", () => {
 })
 })
 
-// Remember to add a description of this endpoint to your /api endpoint.
- 
+describe("GET /api/articles (topic query)", () => {
+test('200: Returns articles that have the specified topic value', () => {
+  return request(app)
+  .get("/api/articles?topic=cats")
+  .expect(200)
+  .then(({body: {articles}}) => {
+    expect(articles.length).toBe(1);
+    articles.forEach((article) => {
+      expect(article.topic).toBe("cats");
+    })
+  })
+});
+})
 
 describe("Error handling", () => {
   describe("Error handling for general errors", () => {
@@ -599,6 +605,17 @@ describe("Error handling", () => {
       .expect(400)
       .then(({body: {msg}}) => {
         expect(msg).toBe("Bad Request");
+      })
+    });
+  })
+
+  describe("Error handling for GET /api/articles?topic= ...", () => {
+    test('404: Returns 404 when topic does not exist ', () => {
+      return request(app)
+      .get("/api/articles?topic=notValid")
+      .expect(404)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Topic Not Found");
       })
     });
   })
