@@ -126,7 +126,6 @@ exports.selectArticles = (sortCriteria = "created_at", orderCriteria = "desc", t
    }
   }
 
-
 exports.selectCommentsByArticle = (articleId) => {
   return checkArticleExists(articleId)
   .then(() => {
