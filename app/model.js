@@ -36,6 +36,17 @@ const checkCommentExists = (commentId) => {
   })
 }
 
+const checkTopicExists = (topic) => {
+  return db
+  .query("SELECT * FROM topics WHERE slug = $1", [topic])
+  .then(({rows}) => {
+    if(rows.length === 0){
+      return Promise.reject({status: 404, msg: "Topic Not Found"})
+    }else{
+      return true;
+    }
+  })
+}
 
 exports.selectTopics = () => {
     return db
@@ -57,15 +68,19 @@ exports.selectArticlesById = (articleId) => {
     });
 }
 
-exports.selectArticles = (sortCriteria = "created_at", orderCriteria = "desc") => {
+exports.selectArticles = (sortCriteria = "created_at", orderCriteria = "desc", topic) => {
   const greenlistSortCriteria = ["article_id", "title", "topic", "author", "created_at", "votes", "article_img_url"];
   const greenlistOrderCriteria = ["desc", "asc"];
+
   if (!greenlistSortCriteria.includes(sortCriteria) || !greenlistOrderCriteria.includes(orderCriteria)){
+
     return Promise.reject({status: 400, msg: "Bad Request"})
-  }else if (greenlistSortCriteria.includes(sortCriteria) && greenlistOrderCriteria.includes(orderCriteria)){
+
+  }
+  
     const upperCaseOrderCriteria = orderCriteria.toUpperCase();
-    return db
-    .query(`
+
+    let queryStr = `
       SELECT 
         articles.article_id, 
         articles.title, 
@@ -77,16 +92,36 @@ exports.selectArticles = (sortCriteria = "created_at", orderCriteria = "desc") =
         COUNT(comments.comment_id) AS comment_count 
       FROM articles 
       LEFT JOIN comments 
-        ON articles.article_id = comments.article_id 
-      GROUP BY 
-        articles.article_id
-      ORDER BY ${sortCriteria} ${upperCaseOrderCriteria}
-    `)
+        ON articles.article_id = comments.article_id`
+   
+   const queryValues = [];
+
+   if (topic){
+    console.log(topic)
+    return checkTopicExists(topic)
+    .then(() => {
+      queryStr += ` WHERE articles.topic = $1`
+     queryValues.push(topic);
+
+      queryStr += ` GROUP BY articles.article_id
+      ORDER BY ${sortCriteria} ${upperCaseOrderCriteria}`
+    return db
+    .query(queryStr, queryValues)
     .then(({rows}) => {
         return rows;
     });
+    });
+   }else{
+    queryStr += ` GROUP BY articles.article_id
+      ORDER BY ${sortCriteria} ${upperCaseOrderCriteria}`
+        return db
+    .query(queryStr, queryValues)
+    .then(({rows}) => {
+        return rows;
+    });
+   }
   }
-}
+
 
 exports.selectCommentsByArticle = (articleId) => {
   return checkArticleExists(articleId)
