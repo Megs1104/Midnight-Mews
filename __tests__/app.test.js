@@ -226,7 +226,7 @@ describe("PATCH /api/articles/:article_id", () => {
       expect(updatedArticle.votes).toBe(99);
     });
   });
-  test("200: The updates article should have the properties author, title, article_id, body, topic, created_at, votes and article_img_url properties", () => {
+  test("200: The updated article should have the properties author, title, article_id, body, topic, created_at, votes and article_img_url properties", () => {
     const votesToUpdate = { inc_votes: 1};
     return request(app)
     .patch("/api/articles/1")
@@ -428,6 +428,56 @@ test('200: Returns a single user object with the username, avatar_url and name p
 });
 });
 
+describe("PATCH /api/comments/:comment_id", () => {
+  test('200: Returns an object containing the updated comment', () => {
+    const votesToUpdate = { inc_votes: 1};
+    return request(app)
+    .patch("/api/comments/1")
+    .send(votesToUpdate)
+    .expect(200)
+    .then(({body: {updatedComment}}) => {
+      expect(typeof updatedComment).toBe("object");
+    });
+  });
+  test('200: Returns the comment with an updated votes property when it is increased', () => {
+    const votesToUpdate = { inc_votes: 1};
+    return request(app)
+    .patch("/api/comments/1")
+    .send(votesToUpdate)
+    .expect(200)
+    .then(({body: {updatedComment}}) => {
+      expect(updatedComment.votes).toBe(17)
+    });
+  });
+  test('200: Returns the comment with an updated votes property when it is decreased', () => {
+    const votesToUpdate = { inc_votes: -1};
+    return request(app)
+    .patch("/api/comments/1")
+    .send(votesToUpdate)
+    .expect(200)
+    .then(({body: {updatedComment}}) => {
+      expect(updatedComment.votes).toBe(15)
+    });
+  });
+  test('200: The updated comment should have the  comment_id, article_id, body, votes, author and created_at properties', () => {
+    const votesToUpdate = {inc_votes: 1};
+    return request(app)
+    .patch("/api/comments/1")
+    .send(votesToUpdate)
+    .expect(200)
+    .then(({body: {updatedComment}})=> {
+      expect(updatedComment).toMatchObject({
+        "comment_id": 1,
+        "article_id": 9,
+        "body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        "votes": 17,
+        "author": "butter_bridge",
+        "created_at": "2020-04-06T12:17:00.000Z"
+      });
+    });
+  });
+});
+
 describe("Error handling", () => {
   describe("Error handling for general errors", () => {
     test("404: Returns 404 when endpoint is not found", () => {
@@ -581,7 +631,7 @@ describe("Error handling", () => {
     test("400: Responds 400 when inc_votes is not a number", () => {
       const votesToUpdate = { inc_votes: "not a number"};
       return request(app)
-      .patch("/api/articles/notANumber")
+      .patch("/api/articles/1")
       .send(votesToUpdate)
       .expect(400)
       .then(({body: {msg}}) => {
@@ -666,5 +716,48 @@ describe("Error handling", () => {
       expect(msg).toBe("No User With That Username Found");
     });
   });
+  });
+
+  describe("Error handling for PATCH /api/comments/:comment_id", () => {
+    test("400: Responds 400 when comment_id is not a number", () => {
+      const votesToUpdate = { inc_votes: 1};
+      return request(app)
+      .patch("/api/comments/notANumber")
+      .send(votesToUpdate)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      });
+    });
+    test("404: Returns 404 when the comment does not exist", () => {
+      const votesToUpdate = { inc_votes: 1};
+      return request(app)
+      .patch("/api/comments/1000/")
+      .send(votesToUpdate)
+      .expect(404)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Comment Not Found");
+      });
+    });
+    test("400: Responds 400 when inc_votes is not a number", () => {
+      const votesToUpdate = { inc_votes: "not a number"};
+      return request(app)
+      .patch("/api/comments/1")
+      .send(votesToUpdate)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      });
+    });
+    test("400: Responds 400 when inc_votes is 0", () => {
+      const votesToUpdate = { inc_votes: 0};
+      return request(app)
+      .patch("/api/comments/1")
+      .send(votesToUpdate)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Cannot Update Votes By 0");
+      });
+    });
   });
 });
