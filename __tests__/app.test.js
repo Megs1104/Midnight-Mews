@@ -188,8 +188,8 @@ describe("POST /api/articles/:article_id/comments", () => {
     .expect(201)
     .then(({body: {newComment}}) => {
       expect(newComment).toMatchObject({
-        "username": expect.any(String), 
-        "body": expect.any(String)
+        "username": "butter_bridge", 
+        "body": "Good article!"
       });
     });
   });
@@ -478,6 +478,73 @@ describe("PATCH /api/comments/:comment_id", () => {
   });
 });
 
+describe("POST /api/articles", () => {
+  test('201: Returns an object containing the newly added article', () => {
+    const articleToAdd = {
+      "author": "butter_bridge",
+      "title": "Why cats are the best.",
+      "body": "Cats are the best because they are snuggly, fluffy, cute and sometimes cheeky.",
+      "topic": "cats",
+      "article_img_url": "https://i0.wp.com/katzenworld.co.uk/wp-content/uploads/2019/06/funny-cat.jpeg?resize=1320%2C1320&ssl=1"
+    };
+    return request(app)
+    .post("/api/articles")
+    .send(articleToAdd)
+    .expect(201)
+    .then(({body: {newArticle}}) => {
+      expect(typeof newArticle).toBe("object");
+    });
+  });
+  test('201: Returned article has the article_id, author, title, body, topic, article_img_url, votes, created_at and comment_count properties', () => {
+    const articleToAdd = {
+      "author": "butter_bridge",
+      "title": "Why cats are the best.",
+      "body": "Cats are the best because they are snuggly, fluffy, cute and sometimes cheeky.",
+      "topic": "cats",
+      "article_img_url": "https://i0.wp.com/katzenworld.co.uk/wp-content/uploads/2019/06/funny-cat.jpeg?resize=1320%2C1320&ssl=1"
+    };
+    return request(app)
+    .post("/api/articles")
+    .send(articleToAdd)
+    .expect(201)
+    .then(({body: {newArticle}}) => {
+      expect(newArticle).toMatchObject({
+        "article_id": 14,
+        "title": "Why cats are the best.",
+        "topic": "cats",
+        "author": "butter_bridge",
+        "body": "Cats are the best because they are snuggly, fluffy, cute and sometimes cheeky.",
+        "created_at": expect.any(String),
+        "votes": 0,
+        "article_img_url": "https://i0.wp.com/katzenworld.co.uk/wp-content/uploads/2019/06/funny-cat.jpeg?resize=1320%2C1320&ssl=1",
+        "comment_count": "0"
+      })
+    });
+  });
+/*   be available on /api/articles.
+add a new article.
+Request body accepts:
+
+an object with the following properties:
+author
+title
+body
+topic
+article_img_url - will default if not provided
+Responds with:
+
+the newly added article, with all the above properties, as well as:
+article_id
+votes
+created_at
+comment_count
+Consider what errors could occur with this endpoint, and make sure to test for them.
+
+Remember to add a description of this endpoint to your /api endpoint.
+ */
+
+})
+
 describe("Error handling", () => {
   describe("Error handling for general errors", () => {
     test("404: Returns 404 when endpoint is not found", () => {
@@ -757,6 +824,136 @@ describe("Error handling", () => {
       .expect(400)
       .then(({body: {msg}}) => {
         expect(msg).toBe("Cannot Update Votes By 0");
+      });
+    });
+  });
+
+  describe("Error handling for POST /api/articles", () => {
+    test("404: Returns 404 when the user does not exist", () => {
+      const articleToAdd = {
+        "author": "notAUser",
+        "title": "Why cats are the best.",
+        "body": "Cats are the best because they are snuggly, fluffy, cute and sometimes cheeky.",
+        "topic": "cats",
+        "article_img_url": "https://i0.wp.com/katzenworld.co.uk/wp-content/uploads/2019/06/funny-cat.jpeg?resize=1320%2C1320&ssl=1"
+      };
+      return request(app)
+      .post("/api/articles")
+      .send(articleToAdd)
+      .expect(404)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("User Does Not Exist");
+      });
+    });
+    test("404: Returns 404 when the topic does not exist", () => {
+      const articleToAdd = {
+        "author": "butter_bridge",
+        "title": "Why cats are the best.",
+        "body": "Cats are the best because they are snuggly, fluffy, cute and sometimes cheeky.",
+        "topic": "notATOpic",
+        "article_img_url": "https://i0.wp.com/katzenworld.co.uk/wp-content/uploads/2019/06/funny-cat.jpeg?resize=1320%2C1320&ssl=1"
+      };
+      return request(app)
+      .post("/api/articles")
+      .send(articleToAdd)
+      .expect(404)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Topic Not Found");
+      });
+    });
+    test("400: Returns 400 when the passed author is not of the correct data type", () => {
+      const articleToAdd = {
+        "author": 1,
+        "title": "Why cats are the best.",
+        "body": "Cats are the best because they are snuggly, fluffy, cute and sometimes cheeky.",
+        "topic": "cats",
+        "article_img_url": "https://i0.wp.com/katzenworld.co.uk/wp-content/uploads/2019/06/funny-cat.jpeg?resize=1320%2C1320&ssl=1"
+      };
+      return request(app)
+      .post("/api/articles")
+      .send(articleToAdd)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      });
+    });
+    test("400: Returns 400 when the passed title is not of the correct data type", () => {
+      const articleToAdd = {
+        "author": "butter_bridge",
+        "title": 1,
+        "body": "Cats are the best because they are snuggly, fluffy, cute and sometimes cheeky.",
+        "topic": "cats",
+        "article_img_url": "https://i0.wp.com/katzenworld.co.uk/wp-content/uploads/2019/06/funny-cat.jpeg?resize=1320%2C1320&ssl=1"
+      };
+      return request(app)
+      .post("/api/articles")
+      .send(articleToAdd)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      });
+    });
+    test("400: Returns 400 when the passed body is not of the correct data type", () => {
+      const articleToAdd = {
+        "author": "butter_bridge",
+        "title": "Why cats are the best.",
+        "body": 1,
+        "topic": "cats",
+        "article_img_url": "https://i0.wp.com/katzenworld.co.uk/wp-content/uploads/2019/06/funny-cat.jpeg?resize=1320%2C1320&ssl=1"
+      };
+      return request(app)
+      .post("/api/articles")
+      .send(articleToAdd)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      });
+    });
+    test("400: Returns 400 when the passed topic is not of the correct data type", () => {
+      const articleToAdd = {
+        "author": "butter_bridge",
+        "title": "Why cats are the best.",
+        "body": "Cats are the best because they are snuggly, fluffy, cute and sometimes cheeky.",
+        "topic": 1,
+        "article_img_url": "https://i0.wp.com/katzenworld.co.uk/wp-content/uploads/2019/06/funny-cat.jpeg?resize=1320%2C1320&ssl=1"
+      };
+      return request(app)
+      .post("/api/articles")
+      .send(articleToAdd)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      });
+    });
+    test("400: Returns 400 when the passed article_img_url is not of the correct data type", () => {
+      const articleToAdd = {
+        "author": "butter_bridge",
+        "title": "Why cats are the best.",
+        "body": "Cats are the best because they are snuggly, fluffy, cute and sometimes cheeky.",
+        "topic": "cats",
+        "article_img_url": 1
+      };
+      return request(app)
+      .post("/api/articles")
+      .send(articleToAdd)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      });
+    });
+    test("400: Returns 400 when a vital property is missing from provided object", () => {
+      const articleToAdd = {
+        "author": "butter_bridge",
+        "title": "Why cats are the best.",
+        "body": "Cats are the best because they are snuggly, fluffy, cute and sometimes cheeky.",
+        "article_img_url": "https://i0.wp.com/katzenworld.co.uk/wp-content/uploads/2019/06/funny-cat.jpeg?resize=1320%2C1320&ssl=1"
+      };
+      return request(app)
+      .post("/api/articles")
+      .send(articleToAdd)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
       });
     });
   });

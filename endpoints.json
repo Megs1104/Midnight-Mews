@@ -159,6 +159,20 @@
         "author": "butter_bridge",
         "created_at": "2020-04-06T12:17:00.000Z"
     }
+  },
+  "POST /api/articles": {
+    "description": "serves the article posted", 
+    "exampleResponse": {
+      "article_id": 14,
+      "title": "Why cats are the best.",
+      "topic": "cats",
+      "body": "Cats are the best because they are snuggly, fluffy, cute and sometimes cheeky.",
+      "author": "butter_bridge",
+      "created_at": "2025-05-01T13:28:00.232Z",
+      "votes": 0,
+      "article_img_url": "https://i0.wp.com/katzenworld.co.uk/wp-content/uploads/2019/06/funny-cat.jpeg?resize=1320%2C1320&ssl=1",
+      "comment_count": "0"
+    }
   }
 }
 

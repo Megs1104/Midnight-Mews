@@ -8,7 +8,8 @@ const { selectTopics,
     selectComments, 
     selectUsers, 
     selectUserByUsername,
-    updateCommentVotes } = require("./model"); 
+    updateCommentVotes, 
+    insertArticle } = require("./model"); 
 const endpointsJson = require("../endpoints.json");
 
 exports.getApi = (req, res) => {
@@ -161,4 +162,15 @@ exports.patchCommentVotes = (req, res, next) => {
             next(err);
         });
     };
+};
+
+exports.postArticle = (req, res, next) => {
+    const { author, title, body, topic, article_img_url } = req.body;
+    return insertArticle(author, title, body, topic, article_img_url)
+        .then((newArticle) => {
+            res.status(201).send({ newArticle })
+        })
+        .catch((err) => {
+            next(err);
+        });
 };
