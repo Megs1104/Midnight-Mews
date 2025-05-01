@@ -213,3 +213,18 @@ exports.selectUserByUsername = (username) => {
   };
   });
 };
+
+exports.updateCommentVotes = (commentId, votesToUpdate) => {
+  if (typeof votesToUpdate !== "number"){
+    return Promise.reject({status:400, msg: "Votes Must Be A Number"});
+  }
+  return checkCommentExists(commentId)
+  .then(() => {
+    return db.query(
+      `UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING *`,
+      [votesToUpdate, commentId]);
+  })
+  .then(({rows}) => {
+    return rows[0];
+  });
+};

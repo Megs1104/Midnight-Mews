@@ -7,7 +7,8 @@ const { selectTopics,
     removeComment, 
     selectComments, 
     selectUsers, 
-    selectUserByUsername } = require("./model"); 
+    selectUserByUsername,
+    updateCommentVotes } = require("./model"); 
 const endpointsJson = require("../endpoints.json");
 
 exports.getApi = (req, res) => {
@@ -87,14 +88,14 @@ exports.patchArticleVotes = (req, res, next) => {
     }else if (inc_votes === 0){
         res.status(400).send({msg: "Cannot Update Votes By 0"});
 
-    }else{
-    return updateArticleVotes(articleId, inc_votes)
-    .then((updatedArticle) => {
+    }else {
+        return updateArticleVotes(articleId, inc_votes)
+        .then((updatedArticle) => {
          res.status(200).send({ updatedArticle });
-    })
-    .catch((err) => {
+        })
+        .catch((err) => {
         next(err);
-    });
+        });
     };
 };
 
@@ -142,4 +143,22 @@ exports.getUserByUsername = (req, res, next) => {
         .catch((err) => {
             next(err);
         }); 
+};
+
+exports.patchCommentVotes = (req, res, next) => {
+    const commentId = req.params.comment_id;
+    const { inc_votes } = req.body;
+    if (isNaN(commentId) || typeof inc_votes !== "number"){
+        res.status(400).send({msg: "Bad Request"});
+    }else if (inc_votes === 0){
+        res.status(400).send({msg: "Cannot Update Votes By 0"});
+    }else {
+        return updateCommentVotes(commentId, inc_votes)
+        .then((updatedComment) => {
+            res.status(200).send({ updatedComment });
+        })
+        .catch((err) => {
+            next(err);
+        });
+    };
 };
