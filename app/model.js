@@ -228,3 +228,41 @@ exports.updateCommentVotes = (commentId, votesToUpdate) => {
     return rows[0];
   });
 };
+
+exports.insertArticle = (author, title, body, topic, article_img_url) => {
+  const properties = [author, title, body, topic, article_img_url]
+  const propertiesTypeCheck = properties.every(property => typeof property === "string");
+  const propertiesPresentCheck = properties.every(property => !null);
+
+  if (!propertiesTypeCheck || !propertiesPresentCheck){
+    return Promise.reject({status: 400, msg: "Bad Request"});
+  };
+  return checkUserExists(author)
+  .then(() => checkTopicExists(topic))
+    .then(() => {
+      return db
+    .query(`INSERT INTO articles (author, title, body, topic, article_img_url) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [author, title, body, topic, article_img_url])
+    .then(({rows}) => {
+      const articleId = rows[0].article_id;
+      return db
+      .query(`SELECT 
+        articles.article_id, 
+        articles.title, 
+        articles.topic,
+        articles.body,
+        articles.author, 
+        articles.created_at, 
+        articles.votes, 
+        articles.article_img_url,
+        COUNT(comments.comment_id) AS comment_count 
+      FROM articles 
+      LEFT JOIN comments 
+        ON articles.article_id = comments.article_id 
+        WHERE articles.article_id = $1 
+        GROUP BY articles.article_id`, [articleId])
+        .then(({rows}) => {
+          return rows[0]
+        });
+    });
+    });
+  };
