@@ -39,8 +39,7 @@ describe("GET /api/topics", () => {
         expect(typeof topic).toBe("object");
       });
     });
-
-  })
+  });
   test("200: Each topic object should have a slug property and a description property", () => {
     return request(app)
     .get("/api/topics")
@@ -65,7 +64,6 @@ describe("GET /api/articles/:article_id", () => {
       .then(({ body }) => {
         expect(typeof body).toBe("object");
       });
-
   });
   test("200: Returned article should have author, title, article_id, body, topic, created_at, votes and article_img_url properties", () => {
     return request(app)
@@ -82,8 +80,8 @@ describe("GET /api/articles/:article_id", () => {
         "votes": 100,
         "article_img_url":
           "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
-      })
-    })
+      });
+    });
   });
 });
 
@@ -133,7 +131,7 @@ describe("GET /api/articles", () => {
     .get("/api/articles")
     .expect(200)
     .then(({body: {articles}}) => {
-      expect(articles[0].comment_count).toBe("2")
+      expect(articles[0].comment_count).toBe("2");
     });
   });
 });
@@ -164,12 +162,12 @@ describe("GET /api/articles/:article_id/comments", () => {
           "body": expect.any(String),
           "votes": expect.any(Number),
           "author": expect.any(String),
-          "created_at": expect.any(String),
+          "created_at": expect.any(String)
         });
       });
     });
-  })
-})
+  });
+});
 
 describe("POST /api/articles/:article_id/comments", () => {
   test("201: Returns the newly added comment as an object", () => {
@@ -180,8 +178,8 @@ describe("POST /api/articles/:article_id/comments", () => {
     .expect(201)
     .then(({body: {newComment}}) => {
       expect(typeof newComment).toBe("object");
-    })
-  })
+    });
+  });
   test("201: Returns the username and body properties of the added comment", () => {
     const commentToAdd = {username: "butter_bridge", body: "Good article!"};
     return request(app)
@@ -192,10 +190,10 @@ describe("POST /api/articles/:article_id/comments", () => {
       expect(newComment).toMatchObject({
         "username": expect.any(String), 
         "body": expect.any(String)
-      })
-    })
-  })
-})
+      });
+    });
+  });
+});
 
 describe("PATCH /api/articles/:article_id", () => {
   test("200: Returns an object containing the updated article", () => {
@@ -206,8 +204,8 @@ describe("PATCH /api/articles/:article_id", () => {
     .expect(200)
     .then(({body: {updatedArticle}}) => {
       expect(typeof updatedArticle).toBe("object");
-    })
-  })
+    });
+  });
   test("200: Returns the article with an updated votes property when it is increased", () => {
     const votesToUpdate = { inc_votes: 1};
     return request(app)
@@ -216,8 +214,8 @@ describe("PATCH /api/articles/:article_id", () => {
     .expect(200)
     .then(({body: {updatedArticle}}) => {
       expect(updatedArticle.votes).toBe(101);
-    })
-  })
+    });
+  });
   test("200: Returns the article with an updated votes property when it is decreased", () => {
     const votesToUpdate = { inc_votes: -1};
     return request(app)
@@ -226,8 +224,8 @@ describe("PATCH /api/articles/:article_id", () => {
     .expect(200)
     .then(({body: {updatedArticle}}) => {
       expect(updatedArticle.votes).toBe(99);
-    })
-  })
+    });
+  });
   test("200: The updates article should have the properties author, title, article_id, body, topic, created_at, votes and article_img_url properties", () => {
     const votesToUpdate = { inc_votes: 1};
     return request(app)
@@ -246,9 +244,9 @@ describe("PATCH /api/articles/:article_id", () => {
         "article_img_url":
           "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
       });
-    })
-  })
-})
+    });
+  });
+});
 
 describe("DELETE /api/comments/:comment_id", () => {
   test("204: Responds with 204 after successful deletion and 404 when try to get the comment after deletion", () => {
@@ -258,7 +256,7 @@ describe("DELETE /api/comments/:comment_id", () => {
     .then(() => {
       return request(app)
       .get("/api/comments/1")
-      .expect(404)
+      .expect(404);
     });
    });
    test("204: Responds with 204 after successful deletion of only specified comment and 200 when all other comments can be retrieved", () => {
@@ -273,9 +271,8 @@ describe("DELETE /api/comments/:comment_id", () => {
         expect(comments.length).toBe(17);
       });
     });
-   })
-   
-})
+   });
+});
 
 describe("GET /api/users", () => {
   test("200: Returns an array of all user objects", () => {
@@ -289,7 +286,6 @@ describe("GET /api/users", () => {
         expect(typeof user).toBe("object");
       });
     });
-    
   });
   test("200: Returns an array of all user objects which contain a username, name and avatar_url property", () => {
     return request(app)
@@ -306,76 +302,75 @@ describe("GET /api/users", () => {
         });
       });
     });
-    
   });
-})
+});
 
 describe("GET /api/articles (sorting queries)", () => {
 test("200: Returns articles sorted by article_id with default order of descending", () => {
-return request(app)
-.get("/api/articles?sort_by=article_id")
-.expect(200)
-.then(({body: {articles}}) => {
-expect(articles).toBeSortedBy("article_id", {descending: true});
-})
-})
+  return request(app)
+  .get("/api/articles?sort_by=article_id")
+  .expect(200)
+  .then(({body: {articles}}) => {
+  expect(articles).toBeSortedBy("article_id", {descending: true});
+  });
+});
 test("200: Returns articles sorted by title with default order of descending", () => {
   return request(app)
   .get("/api/articles?sort_by=title")
   .expect(200)
   .then(({body: {articles}}) => {
   expect(articles).toBeSortedBy("title", {descending: true});
-  })
-})
+  });
+});
 test("200: Returns articles sorted by topic with default order of descending", () => {
   return request(app)
   .get("/api/articles?sort_by=topic")
   .expect(200)
   .then(({body: {articles}}) => {
   expect(articles).toBeSortedBy("topic", {descending: true});
-  })
-})
+  });
+});
 test("200: Returns articles sorted by author with default order of descending", () => {
   return request(app)
   .get("/api/articles?sort_by=author")
   .expect(200)
   .then(({body: {articles}}) => {
   expect(articles).toBeSortedBy("author", {descending: true});
-  })
-})
+  });
+});
 test("200: Returns articles sorted by created_at with default order of descending", () => {
   return request(app)
   .get("/api/articles?sort_by=created_at")
   .expect(200)
   .then(({body: {articles}}) => {
   expect(articles).toBeSortedBy("created_at", {descending: true});
-  })
-})
+  });
+});
 test("200: Returns articles sorted by votes with default order of descending", () => {
   return request(app)
   .get("/api/articles?sort_by=votes")
   .expect(200)
   .then(({body: {articles}}) => {
   expect(articles).toBeSortedBy("votes", {descending: true});
-  })
-})
+  });
+});
 test("200: Returns articles sorted by article_img_url with default order of descending", () => {
   return request(app)
   .get("/api/articles?sort_by=article_img_url")
   .expect(200)
   .then(({body: {articles}}) => {
   expect(articles).toBeSortedBy("article_img_url", {descending: true});
-  })
-})
+  });
+});
 test("200: Returns articles sorted in ascending order", () => {
   return request(app)
   .get("/api/articles?sort_by=article_id&order=asc")
   .expect(200)
   .then(({body: {articles}}) => {
   expect(articles).toBeSortedBy("article_id", {descending: false});
-  })
-})
-})
+  });
+});
+});
 
 describe("GET /api/articles (topic query)", () => {
 test('200: Returns articles that have the specified topic value', () => {
@@ -386,10 +381,10 @@ test('200: Returns articles that have the specified topic value', () => {
     expect(articles.length).toBe(1);
     articles.forEach((article) => {
       expect(article.topic).toBe("cats");
-    })
-  })
+    });
+  });
 });
-})
+});
 
 describe("GET /api/articles/:article_id (comment_count", () => {
   test('200: Returns single article which has a comment_count property', () => {
@@ -397,18 +392,41 @@ describe("GET /api/articles/:article_id (comment_count", () => {
     .get("/api/articles/1")
     .expect(200)
     .then(({ body: {article} }) => {
-      expect(article.comment_count).toBe("11")
-    })
+      expect(article.comment_count).toBe("11");
+    });
   });
   test('200: Returns single article which has a comment_count property of 0 when given article has no comments', () => {
     return request(app)
     .get("/api/articles/11")
     .expect(200)
     .then(({ body: {article} }) => {
-      expect(article.comment_count).toBe("0")
-    })
+      expect(article.comment_count).toBe("0");
+    });
   });
-})
+});
+
+describe("GET /api/users/:username", () => {
+test('200: Returns a single user object', () => {
+  return request(app)
+  .get("/api/users/butter_bridge")
+  .expect(200)
+  .then(({body: {user}}) => {
+    expect(typeof user).toBe("object");
+  });
+});
+test('200: Returns a single user object with the username, avatar_url and name properties', () => {
+  return request(app)
+  .get("/api/users/butter_bridge")
+  .expect(200)
+  .then(({body: {user}}) => {
+    expect(user).toMatchObject({
+      username: "butter_bridge",
+      name: "jonny",
+      avatar_url:
+        "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"})
+  });
+});
+});
 
 describe("Error handling", () => {
   describe("Error handling for general errors", () => {
@@ -417,7 +435,7 @@ describe("Error handling", () => {
           .get("/api/notTopics")
           .expect(404)
           .then(({ body: { msg } }) => {
-            expect(msg).toBe("Invalid Input")
+            expect(msg).toBe("Invalid Input");
           });
     });
     });
@@ -496,7 +514,7 @@ describe("Error handling", () => {
         .then(({body: {msg}}) => {
           expect(msg).toBe("Article Not Found");
         });
-      })
+      });
       test("400: Returns 400 when article_id is not a number", () => {
         const commentToAdd = {username: "butter_bridge", body: "Good article!"};
         return request(app)
@@ -506,7 +524,7 @@ describe("Error handling", () => {
         .then(({body: {msg}}) => {
           expect(msg).toBe("Bad Request");
         });
-      })
+      });
       test("400: Returns 400 when the passed username is not of the correct data type", () => {
         const commentToAdd = {username: 1, body: "Good article!"};
         return request(app)
@@ -516,7 +534,7 @@ describe("Error handling", () => {
         .then(({body: {msg}}) => {
           expect(msg).toBe("Bad Request");
         });
-      })
+      });
       test("400: Returns 400 when the passed body is not of the correct data type", () => {
         const commentToAdd = {username: "butter_bridge", body: 1};
         return request(app)
@@ -526,7 +544,7 @@ describe("Error handling", () => {
         .then(({body: {msg}}) => {
           expect(msg).toBe("Bad Request");
         });
-      })
+      });
       test("400: Returns 400 when a vital property is missing from provided object", () => {
         const commentToAdd = {username: "butter_bridge"}
         return request(app)
@@ -536,7 +554,7 @@ describe("Error handling", () => {
         .then(({body: {msg}}) => {
           expect(msg).toBe("Bad Request");
         });
-      })
+      });
     });
 
   describe("Error handling for PATCH /api/articles/:article_id", () => {
@@ -616,7 +634,7 @@ describe("Error handling", () => {
       .expect(400)
       .then(({body: {msg}}) => {
         expect(msg).toBe("Bad Request");
-      })
+      });
     });
     test('400: Returns 400 when order criteria is invalid', () => {
       return request(app)
@@ -624,9 +642,9 @@ describe("Error handling", () => {
       .expect(400)
       .then(({body: {msg}}) => {
         expect(msg).toBe("Bad Request");
-      })
+      });
     });
-  })
+  });
 
   describe("Error handling for GET /api/articles?topic= ...", () => {
     test('404: Returns 404 when topic does not exist ', () => {
@@ -635,7 +653,18 @@ describe("Error handling", () => {
       .expect(404)
       .then(({body: {msg}}) => {
         expect(msg).toBe("Topic Not Found");
-      })
+      });
     });
-  })
+  });
+
+  describe("Error handling for GET /api/users/:username", () => {
+  test('404: Returns 404 when username is valid but does not exist', () => {
+    return request(app)
+    .get("/api/users/notAUSer")
+    .expect(404)
+    .then(({body: {msg}}) => {
+      expect(msg).toBe("No User With That Username Found");
+    });
+  });
+  });
 });

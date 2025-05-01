@@ -10,17 +10,17 @@ const {
 
 articlesRouter
 .route("/")
-.get(getArticles)
+.get(getArticles);
 
 
 articlesRouter
 .route("/:article_id")
 .get(getArticlesById)
-.patch(patchArticleVotes)
+.patch(patchArticleVotes);
 
 articlesRouter
 .route("/:article_id/comments")
 .get(getCommentsByArticle)
-.post(postCommentByArticle)
+.post(postCommentByArticle);
 
 module.exports = articlesRouter;

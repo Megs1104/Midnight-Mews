@@ -17,7 +17,7 @@ apiRouter.use("/articles", articlesRouter);
 
 apiRouter
 .route("/")
-.get(getApi)
+.get(getApi);
 
 
 module.exports = apiRouter;

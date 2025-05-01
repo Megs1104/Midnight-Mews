@@ -4,6 +4,6 @@ const { getTopics } = require("../app/controller");
 
 topicsRouter
 .route("/")
-.get(getTopics)
+.get(getTopics);
 
 module.exports = topicsRouter;
