@@ -6,64 +6,65 @@ const { selectTopics,
     updateArticleVotes, 
     removeComment, 
     selectComments, 
-    selectUsers } = require("./model"); 
+    selectUsers, 
+    selectUserByUsername } = require("./model"); 
 const endpointsJson = require("../endpoints.json");
 
 exports.getApi = (req, res) => {
     res.status(200).send({endpoints: endpointsJson} );
-}
+};
 
 exports.getTopics = (req, res, next) => {
     return selectTopics()
     .then((topics) => {
-         res.status(200).send({topics: topics}); 
+         res.status(200).send({ topics }); 
     })
     .catch((err) => {
         next(err);
     });
-}
+};
 
 exports.getArticlesById = (req, res, next) => {
-    const articleId = req.params.article_id
+    const articleId = req.params.article_id;
     if (isNaN(articleId)){
         res.status(400).send({msg: "Bad Request"});
     }else{
         return selectArticlesById(articleId)
     .then((article) => {
-        res.status(200).send({article: article});
+        res.status(200).send({ article });
     })
     .catch((err) => {
         next(err);
     });
-    }
-}
+    };
+};
 
 exports.getArticles = (req, res, next) => {
     const {sort_by, order, topic} = req.query;
 
     return selectArticles(sort_by || "created_at", order || "desc", topic)
     .then((articles) => {
-        res.status(200).send({articles: articles});
-    })
-    .catch((err) => {
-        next(err);
-    })
-}
-
-exports.getCommentsByArticle = (req, res, next) => {
-    const articleId = req.params.article_id
-    if (isNaN(articleId)){
-        res.status(400).send({msg: "Bad Request"});
-    }else{
-        return selectCommentsByArticle(articleId)
-    .then((comments) => {
-        res.status(200).send({comments:comments});
+        res.status(200).send({ articles });
     })
     .catch((err) => {
         next(err);
     });
-    }
-}
+};
+
+exports.getCommentsByArticle = (req, res, next) => {
+    const articleId = req.params.article_id;
+    if (isNaN(articleId)){
+        res.status(400).send({msg: "Bad Request"});
+    }else{
+        return selectCommentsByArticle(articleId)
+        .then((comments) => {
+            res.status(200).send({ comments });
+        })
+        .catch((err) => {
+            next(err);
+        });
+    };
+};
 
 exports.postCommentByArticle = (req, res, next) => {
     const articleId = req.params.article_id;
@@ -75,26 +76,27 @@ exports.postCommentByArticle = (req, res, next) => {
         .catch((err) => {
             next(err);
         });
-    
-}
+};
 
 exports.patchArticleVotes = (req, res, next) => {
     const articleId = req.params.article_id;
     const { inc_votes } = req.body;
     if (isNaN(articleId) || typeof inc_votes !== "number"){
         res.status(400).send({msg: "Bad Request"});
+
     }else if (inc_votes === 0){
-        res.status(400).send({msg: "Cannot Update Votes By 0"})
+        res.status(400).send({msg: "Cannot Update Votes By 0"});
+
     }else{
     return updateArticleVotes(articleId, inc_votes)
     .then((updatedArticle) => {
-         res.status(200).send({ updatedArticle })
+         res.status(200).send({ updatedArticle });
     })
     .catch((err) => {
         next(err);
     });
-    }
-}
+    };
+};
 
 exports.deleteComment = (req, res, next) => {
     const commentId = req.params.comment_id;
@@ -103,13 +105,13 @@ exports.deleteComment = (req, res, next) => {
     }else{
         return removeComment(commentId)
         .then(() => {
-            res.status(204).end()
+            res.status(204).end();
         })
         .catch((err) => {
             next(err);
         });
-    }
-}
+    };
+};
 
 exports.getComments = (req, res, next) => {
     return selectComments()
@@ -119,15 +121,25 @@ exports.getComments = (req, res, next) => {
     .catch((err) => {
         next(err);
     });
-}
+};
 
 exports.getUsers = (req, res, next) => {
     return selectUsers()
     .then((users) => {
-        res.status(200).send({ users })
+        res.status(200).send({ users });
     })
     .catch((err) => {
         next(err);
-    })
+    });
+};
 
-}
+exports.getUserByUsername = (req, res, next) => {
+    const username = req.params.username;
+    return selectUserByUsername(username)
+        .then((user) => {
+            res.status(200).send({ user });
+        })
+        .catch((err) => {
+            next(err);
+        }); 
+};

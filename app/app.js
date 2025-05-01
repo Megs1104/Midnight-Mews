@@ -22,11 +22,11 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-    res.status(500).send({msg: "Internal Server Error"})
+    res.status(500).send({msg: "Internal Server Error"});
 });
 
 app.all("/*splat", (req, res) => {
-    res.status(404).send({msg: "Invalid Input"})
+    res.status(404).send({msg: "Invalid Input"});
 });
 
 module.exports = app;
