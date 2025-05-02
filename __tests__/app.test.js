@@ -1074,6 +1074,23 @@ describe("Error handling", () => {
         expect(msg).toBe("Bad Request");
       });
     });
+    test('400: Returns 400 when article already exists', () => {
+      const articleToAdd = {
+        author: "butter_bridge",
+        title: "Living in the shadow of a great man",
+        body: "I find this existence challenging",
+        topic: "mitch",
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      }
+      return request(app)
+      .post("/api/articles")
+      .send(articleToAdd)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Article With That Title Already Exists");
+      });
+    });
   });
 
   describe("Error handling for POST /api/topics", () => {
