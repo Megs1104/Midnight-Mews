@@ -211,6 +211,35 @@
       ],
       "total_count": 3
     }
+  }, 
+  "GET /api/artciles/:article_id/comments?limit=10&p=1": {
+    "description": "sereves all comments for a specified article limited to a specified amount per page and states which page to start from",
+    "exampleResponse": [
+      {
+        "comment_id": 2,
+        "article_id": 1,
+        "body": "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+        "votes": 14,
+        "author": "butter_bridge",
+        "created_at": "2020-10-31T03:03:00.000Z"
+      },
+      {
+        "comment_id": 3,
+        "article_id": 1,
+        "body": "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.",
+        "votes": 100,
+        "author": "icellusedkars",
+        "created_at": "2020-03-01T01:13:00.000Z"
+      },
+      {
+        "comment_id": 4,
+        "article_id": 1,
+        "body": " I carry a log — yes. Is it funny to you? It is not to me.",
+        "votes": -100,
+        "author": "icellusedkars",
+        "created_at": "2020-02-23T12:01:00.000Z"
+      }
+    ]
   }
 }
 

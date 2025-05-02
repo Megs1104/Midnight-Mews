@@ -54,10 +54,11 @@ exports.getArticles = (req, res, next) => {
 
 exports.getCommentsByArticle = (req, res, next) => {
     const articleId = req.params.article_id;
+    const {limit, p} = req.query;
     if (isNaN(articleId)){
         res.status(400).send({msg: "Bad Request"});
     }else{
-        return selectCommentsByArticle(articleId)
+        return selectCommentsByArticle(articleId, limit || 10 , p || 1)
         .then((comments) => {
             res.status(200).send({ comments });
         })

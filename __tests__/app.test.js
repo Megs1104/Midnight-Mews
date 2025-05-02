@@ -144,7 +144,7 @@ describe("GET /api/articles/:article_id/comments", () => {
     .expect(200)
     .then(({body: {comments}}) => {
       expect(Array.isArray(comments)).toBe(true);
-      expect(comments.length).toBe(11);
+      expect(comments.length).toBeGreaterThan(0);
       comments.forEach((comment) => {
         expect(typeof comment).toBe("object");
     });
@@ -155,7 +155,7 @@ describe("GET /api/articles/:article_id/comments", () => {
     .get("/api/articles/1/comments")
     .expect(200)
     .then(({body: {comments}}) => {
-      expect(comments.length).toBe(11);
+      expect(comments.length).toBeGreaterThan(0);
       comments.forEach((comment) => {
         expect(comment).toMatchObject({
           "comment_id": expect.any(Number),
@@ -531,7 +531,7 @@ describe("GET /api/articles (pagination)", () => {
     .expect(200)
     .then(({body: {articles:{articles, total_count}}}) => {
       expect(Array.isArray(articles)).toBe(true);
-      expect(articles.length).toBeGreaterThan(0);
+      expect(articles.length).toBe(13);
       expect(total_count).toBe(13);
       articles.forEach((article) => {
         expect(typeof article).toBe("object");
@@ -543,7 +543,7 @@ describe("GET /api/articles (pagination)", () => {
     .get("/api/articles?limit=incorrect&p=incorrect")
     .expect(200)
     .then(({body: {articles:{articles, total_count}}}) => {
-      expect(articles.length).toBeGreaterThan(0);
+      expect(articles.length).toBe(10);
       expect(total_count).toBe(13);
       articles.forEach((article) => {
         expect(typeof article).toBe("object");
@@ -559,6 +559,33 @@ describe("GET /api/articles (pagination)", () => {
     });
   });
 });
+
+describe("GET /api/artciles/:article_id/comments (pagination", () => {
+  test('200: Returns comments when limit and offset are specified', () => {
+    return request(app)
+    .get("/api/articles/1/comments?limit=10&p=1")
+    .expect(200)
+    .then(({body: {comments}}) => {
+     expect(comments.length).toBe(10);
+     expect(Array.isArray(comments)).toBe(true)
+     comments.forEach((comment) => {
+      expect(typeof comment).toBe("object");
+    });
+    });
+  });
+  test('200: When limit and offset are specified but incorreclty, should set them to defaults and return comments ', () => {
+    return request(app)
+    .get("/api/articles/1/comments?limit=incorrect&p=incorrect")
+    .expect(200)
+    .then(({body: {comments}}) => {
+      expect(comments.length).toBe(10);
+      expect(Array.isArray(comments)).toBe(true)
+      comments.forEach((comment) => {
+        expect(typeof comment).toBe("object");
+      });
+    });
+  });
+})
 
 describe("Error handling", () => {
   describe("Error handling for general errors", () => {

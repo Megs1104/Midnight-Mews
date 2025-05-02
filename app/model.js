@@ -77,8 +77,10 @@ exports.selectArticlesById = (articleId) => {
 };
 
 exports.selectArticles = (sortCriteria = "created_at", orderCriteria = "desc", topic, limit = 10, p = 1) => {
+
   const greenlistSortCriteria = ["article_id", "title", "topic", "author", "created_at", "votes", "article_img_url"];
   const greenlistOrderCriteria = ["desc", "asc"];
+
   if (!greenlistSortCriteria.includes(sortCriteria) || !greenlistOrderCriteria.includes(orderCriteria)){
     return Promise.reject({status: 400, msg: "Bad Request"});
   };
@@ -144,11 +146,18 @@ exports.selectArticles = (sortCriteria = "created_at", orderCriteria = "desc", t
    };
 };
 
-exports.selectCommentsByArticle = (articleId) => {
+exports.selectCommentsByArticle = (articleId, limit = 10, p = 1) => {
+  if (typeof limit !== "number"){
+    limit = 10;
+  };
+  if (typeof p !== "number"){
+    p = 1;
+  };
+  const offset = (p - 1) * limit;
   return checkArticleExists(articleId)
   .then(() => {
     return db
-    .query(`SELECT * FROM comments WHERE article_id = $1`, [articleId])
+    .query(`SELECT * FROM comments WHERE article_id = $1 LIMIT $2 OFFSET $3`, [articleId, limit, offset])
     .then(({rows}) => {
       if (rows.length === 0){
         return Promise.reject({status: 404, msg: "No Comments Found"});
