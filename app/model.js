@@ -76,13 +76,14 @@ exports.selectArticlesById = (articleId) => {
     });
 };
 
-exports.selectArticles = (sortCriteria = "created_at", orderCriteria = "desc", topic) => {
+exports.selectArticles = (sortCriteria = "created_at", orderCriteria = "desc", topic, limit = 10, p = 1) => {
   const greenlistSortCriteria = ["article_id", "title", "topic", "author", "created_at", "votes", "article_img_url"];
   const greenlistOrderCriteria = ["desc", "asc"];
-
   if (!greenlistSortCriteria.includes(sortCriteria) || !greenlistOrderCriteria.includes(orderCriteria)){
     return Promise.reject({status: 400, msg: "Bad Request"});
   };
+
+  const offset = (p - 1) * limit;
 
     let queryStr = `
       SELECT 
@@ -107,23 +108,39 @@ exports.selectArticles = (sortCriteria = "created_at", orderCriteria = "desc", t
       queryValues.push(topic);
 
       queryStr += `  GROUP BY articles.article_id 
-      ORDER BY ${sortCriteria} ${orderCriteria}`;
+      ORDER BY ${sortCriteria} ${orderCriteria}
+      LIMIT $2 OFFSET $3`;
 
-        return db
-        .query(queryStr, queryValues)
-        .then(({rows}) => {
-         return rows;
-         });
+      const countQuery = `SELECT COUNT (*)::INT AS total_count
+      FROM articles WHERE articles.topic = $1`
+      const countValues = [topic];
+
+      queryValues.push(limit, offset)
+
+      const articlesPromise = db.query(queryStr, queryValues);
+      const countPromise = db.query(countQuery, countValues);
+
+      return Promise.all([articlesPromise, countPromise])
+      .then(([{rows: articles}, {rows: [{ total_count}]}]) => {
+        return { articles, total_count }
+      });
     });
    }else{
-    queryStr += ` GROUP BY articles.article_id
-      ORDER BY ${sortCriteria} ${orderCriteria}`;
+    queryStr += `  GROUP BY articles.article_id 
+      ORDER BY ${sortCriteria} ${orderCriteria}
+      LIMIT $1 OFFSET $2`;
 
-      return db
-      .query(queryStr, queryValues)
-      .then(({rows}) => {
-        return rows;
-       });
+      const countQuery = `SELECT COUNT (*)::INT AS total_count
+      FROM articles`;
+      queryValues.push(limit, offset)
+
+      const articlesPromise = db.query(queryStr, queryValues);
+      const countPromise = db.query(countQuery);
+
+      return Promise.all([articlesPromise, countPromise])
+      .then(([{rows: articles}, {rows: [{ total_count}]}]) => {
+        return { articles, total_count }
+      });
    };
 };
 
