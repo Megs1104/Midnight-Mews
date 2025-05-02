@@ -619,6 +619,50 @@ describe('POST /api/topics', () => {
   });
 });
 
+describe('DELETE /api/articles/:article_id', () => {
+  test("204: Responds with 204 after successful deletion and 404 when try to get the article or related comments after deletion", () => {
+    return request(app)
+    .delete("/api/articles/1")
+    .expect(204)
+    .then(() => {
+      return request(app)
+      .get("/api/articles/1")
+      .expect(404)
+      .then(() => {
+        return request(app)
+        .get("/api/1/comments")
+        .expect(404)
+      })
+    });
+   });
+   test("204: Responds with 204 after successful deletion of only specified article and 200 when all other articles can be retrieved", () => {
+    return request(app)
+    .delete("/api/articles/1")
+    .expect(204)
+    .then(() => {
+      return request(app)
+      .get("/api/articles?limit=20&p=1")
+      .expect(200)
+      .then(({body: { articles:{ articles } }}) => {
+        expect(articles.length).toBe(12);
+      });
+    });
+   });
+   test("204: Responds with 204 after successful deletion of only specified article and 404 when comments for that article cannot be retrieved", () => {
+    return request(app)
+    .delete("/api/articles/1")
+    .expect(204)
+      .then(() => {
+        return request(app)
+        .get("/api/1/comments")
+        .expect(404)
+        .then(({body: { msg }}) => {
+          expect(msg).toBe("Invalid Input")
+        });
+      });
+   });
+});
+
 describe("Error handling", () => {
   describe("Error handling for general errors", () => {
     test("404: Returns 404 when endpoint is not found", () => {
@@ -1069,6 +1113,33 @@ describe("Error handling", () => {
       .expect(400)
       .then(({body: {msg}}) => {
         expect(msg).toBe("Bad Request");
+      });
+    });
+  });
+
+  describe("Error handling for DELETE /api/articles/:article_id", () => {
+    test("404: Returns 404 when article_id is valid but does not contain any data", () => {
+      return request(app)
+      .delete("/api/articles/30")
+      .expect(404)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Article Not Found");
+      });
+    });
+    test("400: Returns 400 when article_id is not a number", () => {
+      return request(app)
+      .delete("/api/articles/notANumber")
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      });
+    });
+    test("404: Returns 404 when article_id is not provided", () => {
+      return request(app)
+      .delete("/api/articles/")
+      .expect(404)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Invalid Input");
       });
     });
   });

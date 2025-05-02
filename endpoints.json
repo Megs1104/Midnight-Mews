@@ -247,6 +247,9 @@
       "slug": "topic name here", 
       "description": "description here" 
     }
+  },
+  "DELETE /api/articles/:article_id": {
+    "description": "removes a specific article and all related comments" 
   }
 }
 
