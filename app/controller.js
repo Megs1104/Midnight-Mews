@@ -9,7 +9,8 @@ const { selectTopics,
     selectUsers, 
     selectUserByUsername,
     updateCommentVotes, 
-    insertArticle } = require("./model"); 
+    insertArticle,
+    insertTopic } = require("./model"); 
 const endpointsJson = require("../endpoints.json");
 
 exports.getApi = (req, res) => {
@@ -173,4 +174,15 @@ exports.postArticle = (req, res, next) => {
         .catch((err) => {
             next(err);
         });
+};
+
+exports.postTopic = (req, res, next) => {
+    const {slug, description} = req.body;
+    return insertTopic(slug, description)
+    .then((newTopic) => {
+        res.status(201).send({ newTopic })
+    })
+    .catch((err) => {
+        next(err);
+    });
 };
