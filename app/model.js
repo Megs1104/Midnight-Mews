@@ -48,6 +48,18 @@ const checkTopicExists = (topic) => {
   });
 };
 
+const checkArticleTitleExists = (title) => {
+  return db
+  .query("SELECT * FROM articles WHERE title = $1", [title])
+  .then(({rows}) => {
+    if(rows.length > 0){
+      return Promise.reject({status: 400, msg: "Article With That Title Already Exists"});
+    }else{
+      return true;
+    };
+  });
+}
+
 exports.selectTopics = () => {
     return db
     .query("SELECT slug, description FROM topics")
@@ -263,7 +275,8 @@ exports.insertArticle = (author, title, body, topic, article_img_url) => {
   if (!propertiesTypeCheck || !propertiesPresentCheck){
     return Promise.reject({status: 400, msg: "Bad Request"});
   };
-  return checkUserExists(author)
+  return checkArticleTitleExists(title)
+  .then(() => checkUserExists(author))
   .then(() => checkTopicExists(topic))
     .then(() => {
       return db
