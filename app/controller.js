@@ -10,7 +10,8 @@ const { selectTopics,
     selectUserByUsername,
     updateCommentVotes, 
     insertArticle,
-    insertTopic } = require("./model"); 
+    insertTopic, 
+    removeArticle } = require("./model"); 
 const endpointsJson = require("../endpoints.json");
 
 exports.getApi = (req, res) => {
@@ -105,15 +106,14 @@ exports.deleteComment = (req, res, next) => {
     const commentId = req.params.comment_id;
     if(isNaN(commentId)){
         res.status(400).send({msg: "Bad Request"});   
-    }else{
-        return removeComment(commentId)
-        .then(() => {
-            res.status(204).end();
-        })
-        .catch((err) => {
-            next(err);
-        });
-    };
+    }
+    return removeComment(commentId)
+    .then(() => {
+        res.status(204).end();
+     })
+     .catch((err) => {
+        next(err);
+     });
 };
 
 exports.getComments = (req, res, next) => {
@@ -186,3 +186,17 @@ exports.postTopic = (req, res, next) => {
         next(err);
     });
 };
+
+exports.deleteArticle = (req, res, next) => {
+    const articleId = req.params.article_id;
+    if(isNaN(articleId)){
+       res.status(400).send({msg: "Bad Request"});   
+    }
+        return removeArticle(articleId)
+        .then(() => {
+            res.status(204).end();
+        })
+        .catch((err) => {
+            next(err);
+        });
+}

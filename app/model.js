@@ -308,3 +308,19 @@ exports.insertTopic = (slug, description) => {
     return rows[0];
   });
 };
+
+exports.removeArticle = (articleId) => {
+  return checkArticleExists(articleId)
+  .then(() => {
+    return db
+    .query
+      (`DELETE FROM articles WHERE article_id = $1`, [articleId]);
+  }).then(({rows}) => {
+    return db
+    .query 
+      (`DELETE FROM comments WHERE article_id = $1`, [articleId])
+  })
+  .then(({rows}) => {
+    return rows;
+  })
+};
