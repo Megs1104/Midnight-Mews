@@ -519,7 +519,7 @@ describe("POST /api/articles", () => {
         "votes": 0,
         "article_img_url": "https://i0.wp.com/katzenworld.co.uk/wp-content/uploads/2019/06/funny-cat.jpeg?resize=1320%2C1320&ssl=1",
         "comment_count": "0"
-      })
+      });
     });
   });
 });
@@ -586,6 +586,38 @@ describe("GET /api/artciles/:article_id/comments (pagination", () => {
     });
   });
 })
+
+describe('POST /api/topics', () => {
+  test('201: Returns an object containing the newly added topic', () => {
+    const topicToAdd = {
+      "slug": "topic name here",
+      "description": "description here"
+    };
+    return request(app)
+    .post("/api/topics")
+    .send(topicToAdd)
+    .expect(201)
+    .then(({body: {newTopic}}) => {
+      expect(typeof newTopic).toBe("object");
+    });
+  });
+  test('201: Returned topic has the slug and description properties', () => {
+    const topicToAdd = {
+      "slug": "topic name here",
+      "description": "description here"
+    };
+    return request(app)
+    .post("/api/topics")
+    .send(topicToAdd)
+    .expect(201)
+    .then(({body: {newTopic}}) => {
+      expect(newTopic).toMatchObject({
+        "slug": "topic name here",
+        "description": "description here"
+      });
+    });
+  });
+});
 
 describe("Error handling", () => {
   describe("Error handling for general errors", () => {
@@ -993,6 +1025,47 @@ describe("Error handling", () => {
       return request(app)
       .post("/api/articles")
       .send(articleToAdd)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      });
+    });
+  });
+
+  describe("Error handling for POST /api/topics", () => {
+    test("400: Returns 400 when the passed slug is not of the correct data type", () => {
+      const topicToAdd = {
+        "slug": 1,
+        "description": "description here"
+      };
+      return request(app)
+      .post("/api/topics")
+      .send(topicToAdd)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      });
+    });
+    test("400: Returns 400 when the passed description is not of the correct data type", () => {
+      const topicToAdd = {
+        "slug": "topic name here",
+        "description": 1
+      };
+      return request(app)
+      .post("/api/topics")
+      .send(topicToAdd)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request");
+      });
+    });
+    test("400: Returns 400 when a vital property is missing from provided object", () => {
+      const topicToAdd = {
+        "slug": "topic name here",
+      };
+      return request(app)
+      .post("/api/topics")
+      .send(topicToAdd)
       .expect(400)
       .then(({body: {msg}}) => {
         expect(msg).toBe("Bad Request");

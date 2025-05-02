@@ -292,3 +292,19 @@ exports.insertArticle = (author, title, body, topic, article_img_url) => {
     });
     });
   };
+
+exports.insertTopic = (slug, description) => {
+  const properties = [slug, description];
+  const propertiesTypeCheck = properties.every(property => typeof property === "string");
+  const propertiesPresentCheck = properties.every(property => !null);
+
+  if (!propertiesTypeCheck || !propertiesPresentCheck){
+    return Promise.reject({status: 400, msg: "Bad Request"});
+  };
+
+  return db
+  .query(`INSERT INTO topics (slug, description) VALUES ($1, $2) RETURNING slug, description`, [slug, description])
+  .then(({rows}) => {
+    return rows[0];
+  });
+};
