@@ -1,4 +1,4 @@
-# News App
+# Midnight Mews
 
 > Live demo: https://megs-news-app.onrender.com/api
 <hr>
