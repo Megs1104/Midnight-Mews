@@ -2,7 +2,7 @@
 
 > Live demo: https://megs-news-app.onrender.com/api
 <hr>
-A back-end web application that allows users to view news articles, comment and manage existing comments. Built with Node.js, Express and PostgreSQL. Development tools used include Jest, Supertest, jest-sorted and dotenv.
+A back-end web application that allows users to view news articles, comment and manage topics alongside managing and posting articles, comments and new topics. Built with Node.js, Express and PostgreSQL. Development tools used include Jest, Supertest, jest-sorted, dotenv, Render, Supabase and GitHub Actions.
 
 ## Getting Started:
 
