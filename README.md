@@ -1,4 +1,4 @@
-# Midnight Mews
+# Midnight Mews Backend
 
 > Live demo: https://megs-news-app.onrender.com/api
 <hr>
