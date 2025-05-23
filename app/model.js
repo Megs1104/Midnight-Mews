@@ -181,7 +181,7 @@ exports.selectCommentsByArticle = (articleId, limit = 10, p = 1) => {
 };
 
 exports.insertCommentsByArticle = (articleId, author, body) => {
-  if(typeof username !== "string"|| typeof body !== "string"){
+  if(typeof author !== "string"|| typeof body !== "string"){
     return Promise.reject({status: 400, msg: "Bad Request"});
   }
   return checkArticleExists(articleId)
