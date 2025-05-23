@@ -172,24 +172,25 @@ describe("GET /api/articles/:article_id/comments", () => {
 
 describe("POST /api/articles/:article_id/comments", () => {
   test("201: Returns the newly added comment as an object", () => {
-    const commentToAdd = {username: "butter_bridge", body: "Good article!"};
+    const commentToAdd = {author: "butter_bridge", body: "Good article!"};
     return request(app)
     .post("/api/articles/1/comments")
     .send(commentToAdd)
     .expect(201)
     .then(({body: {newComment}}) => {
+      console.log(newComment)
       expect(typeof newComment).toBe("object");
     });
   });
   test("201: Returns the username and body properties of the added comment", () => {
-    const commentToAdd = {username: "butter_bridge", body: "Good article!"};
+    const commentToAdd = {author: "butter_bridge", body: "Good article!"};
     return request(app)
     .post("/api/articles/1/comments")
     .send(commentToAdd)
     .expect(201)
     .then(({body: {newComment}}) => {
       expect(newComment).toMatchObject({
-        "username": "butter_bridge", 
+        "author": "butter_bridge", 
         "body": "Good article!"
       });
     });
@@ -731,7 +732,7 @@ describe("Error handling", () => {
 
   describe("Error handling for POST /api/articles/:article_id/comments", () => {
       test("404: Returns 404 when the user does not exist", () => {
-        const commentToAdd = {username: "not_a_user", body: "Good article!"};
+        const commentToAdd = {author: "not_a_user", body: "Good article!"};
         return request(app)
         .post("/api/articles/1/comments")
         .send(commentToAdd)
@@ -741,7 +742,7 @@ describe("Error handling", () => {
         });
       });
       test("404: Returns 404 when the article does not exist", () => {
-        const commentToAdd = {username: "butter_bridge", body: "Good article!"};
+        const commentToAdd = {author: "butter_bridge", body: "Good article!"};
         return request(app)
         .post("/api/articles/1000/comments")
         .send(commentToAdd)
@@ -751,7 +752,7 @@ describe("Error handling", () => {
         });
       });
       test("400: Returns 400 when article_id is not a number", () => {
-        const commentToAdd = {username: "butter_bridge", body: "Good article!"};
+        const commentToAdd = {author: "butter_bridge", body: "Good article!"};
         return request(app)
         .post("/api/articles/notANumber/comments")
         .send(commentToAdd)
@@ -760,8 +761,8 @@ describe("Error handling", () => {
           expect(msg).toBe("Bad Request");
         });
       });
-      test("400: Returns 400 when the passed username is not of the correct data type", () => {
-        const commentToAdd = {username: 1, body: "Good article!"};
+      test("400: Returns 400 when the passed author is not of the correct data type", () => {
+        const commentToAdd = {author: 1, body: "Good article!"};
         return request(app)
         .post("/api/articles/1/comments")
         .send(commentToAdd)
@@ -771,7 +772,7 @@ describe("Error handling", () => {
         });
       });
       test("400: Returns 400 when the passed body is not of the correct data type", () => {
-        const commentToAdd = {username: "butter_bridge", body: 1};
+        const commentToAdd = {author: "butter_bridge", body: 1};
         return request(app)
         .post("/api/articles/1/comments")
         .send(commentToAdd)
@@ -781,7 +782,7 @@ describe("Error handling", () => {
         });
       });
       test("400: Returns 400 when a vital property is missing from provided object", () => {
-        const commentToAdd = {username: "butter_bridge"}
+        const commentToAdd = {author: "butter_bridge"}
         return request(app)
         .post("/api/articles/1/comments")
         .send(commentToAdd)

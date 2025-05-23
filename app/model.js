@@ -186,7 +186,7 @@ exports.insertCommentsByArticle = (articleId, author, body) => {
   }
   return checkArticleExists(articleId)
   .then(() => {
-    return checkUserExists(username)
+    return checkUserExists(author)
     .then(() => {
       return db
       .query(
