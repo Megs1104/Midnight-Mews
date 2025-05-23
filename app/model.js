@@ -190,7 +190,7 @@ exports.insertCommentsByArticle = (articleId, username, body) => {
     .then(() => {
       return db
       .query(
-        `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING author AS username, body, created_at, votes, comment_id`, [articleId, username, body])
+        `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING author, body, created_at, votes, comment_id`, [articleId, username, body])
       .then(({rows}) => {
         return rows[0];
       });
